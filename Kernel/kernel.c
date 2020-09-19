@@ -5,6 +5,9 @@
 #include <idtLoader.h>
 #include <screenDriver.h>
 #include <exceptions.h>
+#include <memoryManager.h>
+
+#define HEAP_SIZE 1024*1024*128
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -16,6 +19,7 @@ extern uint8_t endOfKernel;
 static const uint64_t PageSize = 0x1000;
 static void *const sampleCodeModuleAddress = (void *)0x400000;
 static void *const sampleDataModuleAddress = (void *)0x500000;
+static void * const heapBaseAddress = (void*)0x600000;
 
 typedef int (*EntryPoint)();
 
@@ -45,8 +49,10 @@ void *initializeKernelBinary()
 }
 
 int main(){
-	
+	initializeMemoryManager(heapBaseAddress,HEAP_SIZE);
 	load_idt();
+	initializeScheduler();
+	initializeProcess();
     initExceptions(sampleCodeModuleAddress,getInitialSP());
 	initScreen();
 	((EntryPoint)sampleCodeModuleAddress)();
