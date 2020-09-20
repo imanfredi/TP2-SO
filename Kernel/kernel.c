@@ -4,6 +4,8 @@
 #include <naiveConsole.h>
 #include <idtLoader.h>
 #include <screenDriver.h>
+#include <interrupts.h>
+#include <scheduler.h>
 #include <exceptions.h>
 #include <memoryManager.h>
 
@@ -52,9 +54,10 @@ int main(){
 	initializeMemoryManager(heapBaseAddress,HEAP_SIZE);
 	load_idt();
 	initializeScheduler();
-	initializeProcess();
+	char *argv[]={"sampleCodeModuleAddress"};
+	addNewProcess(sampleCodeModuleAddress,1,argv);
     initExceptions(sampleCodeModuleAddress,getInitialSP());
 	initScreen();
-	((EntryPoint)sampleCodeModuleAddress)();
+	_hlt();
 	return 0;
 }

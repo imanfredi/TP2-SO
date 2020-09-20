@@ -4,6 +4,7 @@
 #include <rtc.h>
 #include <lib.h>
 #include <adminScreen.h>
+#include <scheduler.h>
 
 
 /*Se declara el tipo que devuelven y luego lo que reciben. Si el parentesis esta vacio, significa que recibe cualquier cosa*/
@@ -18,7 +19,7 @@ static uint64_t temperature(Register_t *registers);
 static uint64_t screenRequest(Register_t * registers);
 
 
-static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen,&readMem,&time,&information,&temperature,&cpuModel,&getRegisters,&screenRequest,&startAppsVisual};
+static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen,&readMem,&time,&information,&temperature,&cpuModel,&getRegisters,&screenRequest,&startAppsVisual,&newProcess,&finishProcess};
 
 uint64_t systemCallDispatcher(Register_t *parameters)
 {
@@ -98,4 +99,12 @@ static uint64_t temperature(Register_t *registers){
 
 static uint64_t screenRequest(Register_t * registers){
     return screenPartRequested((uint8_t)registers->rdi);
+}
+
+static uint64_t newProcess(Register_t * registers){
+    return addNewProcess((void (*)(int, char **))registers->rdi,(int)registers->rsi,(char**)registers->rdx);
+}
+
+static uint64_t finishProcess(){
+    return exit();
 }

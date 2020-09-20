@@ -3,8 +3,6 @@
 static uint8_t *const initialMem = (uint8_t *)0xB8000;
 static uint8_t *const endMem = (uint8_t *)0xB8FA0;
 
-static uint64_t printString(const uint8_t *string, uint64_t size, uint8_t colour);
-
 
 void initScreen()
 {
