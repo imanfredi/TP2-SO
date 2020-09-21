@@ -51,13 +51,15 @@ void *initializeKernelBinary()
 }
 
 int main(){
+
 	initializeMemoryManager(heapBaseAddress,HEAP_SIZE);
-	load_idt();
 	initializeScheduler();
+	load_idt();
 	char *argv[]={"sampleCodeModuleAddress"};
 	addNewProcess(sampleCodeModuleAddress,1,argv);
     initExceptions(sampleCodeModuleAddress,getInitialSP());
 	initScreen();
 	_hlt();
 	return 0;
+
 }

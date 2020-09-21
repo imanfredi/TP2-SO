@@ -2,6 +2,7 @@ GLOBAL cpuVendor
 GLOBAL _temperature
 GLOBAL cpuModel
 GLOBAL getInitialSP
+GLOBAL callTimerTick
 section .text
 
 
@@ -84,4 +85,8 @@ _temperature:
 getInitialSP:
 	mov rax,rsp
 	add rax,8
+	ret
+
+callTimerTick:
+	int 20h
 	ret

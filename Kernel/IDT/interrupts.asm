@@ -20,6 +20,7 @@ EXTERN exceptionDispatcher
 EXTERN systemCallDispatcher
 EXTERN saveRegisters
 EXTERN printRegisters
+EXTERN schedule
 
 SECTION .text
 
@@ -155,7 +156,22 @@ picSlaveMask:
 
 ;8254 Timer (Timer Tick)
 _irq00Handler:
-	irqHandlerMaster 0
+	pushState
+	
+	mov rdi, 0 ; pasaje de parametro
+	call irqDispatcher
+
+	mov rdi,rsp
+	call schedule
+	mov rsp,rax
+	
+	;Send EOI
+	mov al,20h
+	out 20h,al
+
+	popState
+	iretq
+
 
 ;Keyboard
 _irq01Handler:
@@ -192,7 +208,7 @@ haltcpu:
 	ret
 
 _systemCallHandler:
-
+		
         push rbp
         mov rbp,rsp
 
@@ -208,6 +224,13 @@ _systemCallHandler:
 		mov rdi,register
 		
 		call systemCallDispatcher
+		
+		;cmp ,12
+
+		;mov rsp,rax
+		;popState
+		;iretq
+
 		
 		popStateNoRax
 
@@ -228,3 +251,4 @@ SECTION .bss
 			rr8 resq 1
 			rr9 resq 1
 			rr10 resq 1
+SECTION .data

@@ -11,7 +11,7 @@ int main() {
  // addApplication(&runTerminal,SHELL_MESSAGE);
   char *argv[] = {"shell"};
   addNewProcess(&runTerminal,1,argv);
-  exit(0);
+  return 0;
   //runApp();
   
 
