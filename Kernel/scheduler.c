@@ -2,6 +2,7 @@
 #include <memoryManager.h>
 #include <scheduler.h>
 #include <stdint.h>
+#include <lib.h>
 
 enum state { READY = 0,
              BLOCKED,
@@ -10,6 +11,7 @@ enum state { READY = 0,
 #define STACK_SIZE 1024 * 4
 #define INITIAL_PRIORITY 1
 #define INIT_PROCESS 1
+#define NULL 0
 
 typedef struct {
     uint64_t r15;
@@ -57,8 +59,22 @@ typedef struct {
 } processQueue_t;
 
 static uint64_t pidCounter;
-static processNode *currentProcess;
-static processQueue_t *processQueue;
+static processNode * currentProcess;
+static processQueue_t * processQueue;
+
+static void initPCB(processNode *node, char *name, void (*function)(int, char **), uint64_t ppid);
+static void initStackFrame(void (*function)(int, char **), int argc, char **argv, processNode *node);
+void loader(int argc, char * argv[], void (*function)(int, char**));
+int strcpy(char dest[], const char source[]);
+uint32_t uintToBase(uint64_t value, uint8_t *buffer, uint32_t base);
+uint32_t uintToBaseWithLength(uint64_t value, uint8_t *buffer, uint32_t base, uint8_t size);
+processNode * dequeueProcess();
+void enqueueProcess(processNode *process);
+int isEmpty();
+uint64_t newPid();
+int strlen(const char *s);
+void exit();
+void kill(uint64_t pid);
 
 void initializeScheduler() {
     pidCounter = 0;
@@ -70,7 +86,7 @@ void initializeScheduler() {
 }
 
 void finishScheduler() {
-    free(processQueue);
+    free2(processQueue);
 }
 
 //Agregar next a si mismo. Llenar estructura pcb. Inicializar el stack con todos los valores correspondientes
@@ -85,14 +101,15 @@ void finishScheduler() {
                             v
                  |    STACK      |    */
 
-void addNewProcess(void (*function)(int, char **), int argc, char **argv) {
+uint64_t addNewProcess(void (*function)(int, char **), int argc, char **argv) {
     processNode *node = (processNode *)malloc2(sizeof(processNode) + STACK_SIZE);
     if (node == NULL)
-        return 0;
+        return -1;
 
     initPCB(node, argv[0], function, INIT_PROCESS);
     initStackFrame(function, argc, argv, node);
     enqueueProcess(node);
+    return 0;
 }
 
 void initStackFrame(void (*function)(int, char **), int argc, char **argv, processNode *node) {
@@ -108,7 +125,7 @@ void initStackFrame(void (*function)(int, char **), int argc, char **argv, proce
     stackFrame->r8 = 3;
     stackFrame->r9 = 2;
     stackFrame->r8 = 1;
-    stackFrame->rsi = argv;
+    stackFrame->rsi = (uint64_t)argv;
     stackFrame->rdi = argc;
     stackFrame->rbp = 0;
     stackFrame->rdx = (uint64_t) function;
@@ -122,7 +139,7 @@ void initStackFrame(void (*function)(int, char **), int argc, char **argv, proce
     stackFrame->rsp = (uint64_t)node->process.rsp;
 }
 
-void initPCB(processNode *node, const char *name, void (*function)(int, char **), uint64_t ppid) {
+void initPCB(processNode *node, char *name, void (*function)(int, char **), uint64_t ppid) {
     pcb_t *pcb = &(node->process);
     pcb->pid = newPid();
     pcb->ppid = ppid;
@@ -140,17 +157,15 @@ Desencolar el primero, encolar el que viene. Hacer el swapeo de rsp. Actualizar 
 uint64_t schedule(uint64_t rsp) {
     //encolar el que viene
     if (currentProcess == NULL) {
-        if (!isEmpty)
+        if (!isEmpty())
             currentProcess = dequeueProcess();
         //else --> Hay que ver que pasa si no hay ningun proceso. Quien corre?
     } else {
         //switching context. Hay que quedarnos con las dos variables para actualizar los rsp
         currentProcess->process.rsp = rsp;
-        enqueueProcesss(currentProces);
+        enqueueProcess(currentProcess);
         currentProcess = dequeueProcess();
     }
-    shell
-    /* shell*/
     return currentProcess->process.rsp;
 }
 
@@ -158,15 +173,13 @@ uint64_t newPid() {
     return ++pidCounter;
 }
 
-
-
 processNode * dequeueProcess() {
     
     if(isEmpty())
         return NULL;
     
     processNode * ans = processQueue->first;
-    processQueue.size--;
+    processQueue->size--;
     processQueue->first = ans->next;
 
     if (processQueue->last == ans){
@@ -192,7 +205,7 @@ void enqueueProcess(processNode *process) {
 }
 
 int isEmpty() {
-    return processQueue.size == 0;
+    return processQueue->size == 0;
 }
 
 void listProcess() {
@@ -205,24 +218,24 @@ necesaria*/
     newLineScreen();
     char *message = "nombre:   ID:   prioridad:   stack pointer:   basePointer:   foreground:   ";
     newLineScreen();
-    printStringScreen(message, sizeof(message), BLACK_WHITE);
+    printStringScreen((uint8_t*)message, sizeof(message), BLACK_WHITE);
 
     do {
         len = 0;
         len += strcpy(buffer, n->process.name);
         len += strcpy(buffer + len, "   ");
-        len += uintToBase(n->process.pid, buffer + len, 10);
+        len += uintToBase(n->process.pid,(uint8_t*) buffer + len, 10);
         len += strcpy(buffer + len, "   ");
-        len += uintToBase(n->process.priority, buffer + len, 10);
+        len += uintToBase(n->process.priority, (uint8_t*)buffer + len, 10);
         len += strcpy(buffer + len, "   ");
-        len += uintToBaseWithLength(n->process.rsp, buffer + len, 16, 17);
+        len += uintToBaseWithLength(n->process.rsp, (uint8_t*)buffer + len, 16, 17);
         len += strcpy(buffer + len, "   ");
-        len += uintToBaseWithLength(n->process.rbp, buffer + len, 16, 17);
+        len += uintToBaseWithLength(n->process.rbp, (uint8_t*)buffer + len, 16, 17);
         len += strcpy(buffer + len, "   ");
-        printStringScreen(buffer, len, BLACK_WHITE);
+        printStringScreen((uint8_t*)buffer, len, BLACK_WHITE);
         newLineScreen();
         n = n->next;
-    } while (n != processQueue->first)
+    } while (n != processQueue->first);
 }
 
 /*Esto habria que moverlo de aca. Todas las funciones de aca abajo*/
@@ -245,7 +258,7 @@ uint32_t uintToBaseWithLength(uint64_t value, uint8_t *buffer, uint32_t base, ui
 }
 /*Esta tabien de aca hay que volarla */
 
-int strlen(const uint8_t *s) {
+int strlen(const char *s) {
     int i = 0;
 
     while (s[i] != 0)
@@ -283,7 +296,7 @@ uint32_t uintToBase(uint64_t value, uint8_t *buffer, uint32_t base) {
     return digits;
 }
 
-int strcpy(uint8_t dest[], const uint8_t source[]) {
+int strcpy(char dest[], const char source[]) {
     int i = 0;
     while (source[i] != '\0') {
         dest[i] = source[i];

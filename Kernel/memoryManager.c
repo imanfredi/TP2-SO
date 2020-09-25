@@ -1,6 +1,6 @@
 /*Implementacion basada en el libro de K&R*/
 
-#define NULL (char *)0
+#define NULL 0
 #define HEAP_SIZE 1024 * 1024 * 128  //la maxima cantidad que soporta nuestro memory manager
 
 typedef long Align;

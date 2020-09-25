@@ -12,7 +12,7 @@ int main() {
   char *argv[] = {"shell"};
   addNewProcess(&runTerminal,1,argv);
   return 0;
-  //runApp();
+ 
   
 
 }

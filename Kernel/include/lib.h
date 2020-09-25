@@ -11,5 +11,6 @@ uint64_t cpuModel();
 
 int _temperature(void);
 void * getInitialSP();
+void * callTimerTick();
 
 #endif

@@ -31,7 +31,7 @@ void load_idt() {
 	picMasterMask(0xFC); //Habilitada el timer tick y el teclado
 	picSlaveMask(0xFF);
         
-	_sti();
+	//_sti(); Activamos las interrupciones cuando se hace el primer hlt
 }
  
 static void setup_IDT_entry (int index, uint64_t offset) {

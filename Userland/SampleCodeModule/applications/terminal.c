@@ -32,7 +32,7 @@ static uint8_t registers[REGISTERS][REG_NAME] = {"RIP","RSP","RAX", "RBX", "RCX"
 
 void runTerminal(uint8_t * buffer, uint8_t *buffDim)
 {          
-    
+        needScreen(0);
         uint8_t c;
         while ((c = getChar()) != EXIT_CODE)
         {  
