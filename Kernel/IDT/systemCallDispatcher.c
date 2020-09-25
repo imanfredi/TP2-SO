@@ -17,9 +17,9 @@ static uint64_t time(Register_t *registers);
 static uint64_t information(Register_t *registers);
 static uint64_t temperature(Register_t *registers);
 static uint64_t screenRequest(Register_t * registers);
+static uint64_t newProcess(Register_t * registers);
 
-
-static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen,&readMem,&time,&information,&temperature,&cpuModel,&getRegisters,&screenRequest,&startAppsVisual,&newProcess,&finishProcess};
+static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen,&readMem,&time,&information,&temperature,&cpuModel,&getRegisters,&screenRequest,&startAppsVisual,&newProcess};
 
 uint64_t systemCallDispatcher(Register_t *parameters)
 {
@@ -103,8 +103,4 @@ static uint64_t screenRequest(Register_t * registers){
 
 static uint64_t newProcess(Register_t * registers){
     return addNewProcess((void (*)(int, char **))registers->rdi,(int)registers->rsi,(char**)registers->rdx);
-}
-
-static uint64_t finishProcess(){
-    return exit();
 }
