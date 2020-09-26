@@ -3,6 +3,7 @@
 #include <scheduler.h>
 #include <stdint.h>
 #include <lib.h>
+#include <stringFunctions.h>
 
 enum state { READY = 0,
              BLOCKED,
@@ -64,15 +65,15 @@ static processQueue_t * processQueue;
 
 static void initPCB(processNode *node, char *name, void (*function)(int, char **), uint64_t ppid);
 static void initStackFrame(void (*function)(int, char **), int argc, char **argv, processNode *node);
-void loader(int argc, char * argv[], void (*function)(int, char**));
+void loader2(int argc, char * argv[], void (*function)(int, char**));
 int strcpy(char dest[], const char source[]);
-uint32_t uintToBase(uint64_t value, uint8_t *buffer, uint32_t base);
-uint32_t uintToBaseWithLength(uint64_t value, uint8_t *buffer, uint32_t base, uint8_t size);
+// uint32_t uintToBase(uint64_t value, uint8_t *buffer, uint32_t base);
+// uint32_t uintToBaseWithLength(uint64_t value, uint8_t *buffer, uint32_t base, uint8_t size);
 processNode * dequeueProcess();
 void enqueueProcess(processNode *process);
 int isEmpty();
 uint64_t newPid();
-int strlen(const char *s);
+// int strlen(const char *s);
 void exit();
 void kill(uint64_t pid);
 
@@ -132,7 +133,7 @@ void initStackFrame(void (*function)(int, char **), int argc, char **argv, proce
     stackFrame->rcx = 0;
     stackFrame->rbx = 0;
     stackFrame->rax = 0;
-    stackFrame->rip = (uint64_t) loader;
+    stackFrame->rip = (uint64_t) loader2;
     stackFrame->cs = 0x8;
     stackFrame->eflags = 0x202;
     stackFrame->ss = 0x0;
@@ -239,7 +240,7 @@ necesaria*/
 }
 
 /*Esto habria que moverlo de aca. Todas las funciones de aca abajo*/
-uint32_t uintToBaseWithLength(uint64_t value, uint8_t *buffer, uint32_t base, uint8_t size) {
+// uint32_t uintToBaseWithLength(uint64_t value, uint8_t *buffer, uint32_t base, uint8_t size) {
     uint8_t *p = buffer + size - 1;
     *p-- = 0;
     uint32_t digits = 0;
@@ -258,43 +259,43 @@ uint32_t uintToBaseWithLength(uint64_t value, uint8_t *buffer, uint32_t base, ui
 }
 /*Esta tabien de aca hay que volarla */
 
-int strlen(const char *s) {
-    int i = 0;
+// int strlen(const char *s) {
+//     int i = 0;
 
-    while (s[i] != 0)
-        i++;
+//     while (s[i] != 0)
+//         i++;
 
-    return i;
-}
+//     return i;
+// }
 
-uint32_t uintToBase(uint64_t value, uint8_t *buffer, uint32_t base) {
-    uint8_t *p = buffer;
-    uint8_t *p1, *p2;
-    uint32_t digits = 0;
+// uint32_t uintToBase(uint64_t value, uint8_t *buffer, uint32_t base) {
+//     uint8_t *p = buffer;
+//     uint8_t *p1, *p2;
+//     uint32_t digits = 0;
 
-    //Calculate characters for each digit
-    do {
-        uint32_t remainder = value % base;
-        *p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
-        digits++;
-    } while (value /= base);
+//     //Calculate characters for each digit
+//     do {
+//         uint32_t remainder = value % base;
+//         *p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
+//         digits++;
+//     } while (value /= base);
 
-    // Terminate string in buffer.
-    *p = 0;
+//     // Terminate string in buffer.
+//     *p = 0;
 
-    //Reverse string in buffer.
-    p1 = buffer;
-    p2 = p - 1;
-    while (p1 < p2) {
-        uint8_t tmp = *p1;
-        *p1 = *p2;
-        *p2 = tmp;
-        p1++;
-        p2--;
-    }
+//     //Reverse string in buffer.
+//     p1 = buffer;
+//     p2 = p - 1;
+//     while (p1 < p2) {
+//         uint8_t tmp = *p1;
+//         *p1 = *p2;
+//         *p2 = tmp;
+//         p1++;
+//         p2--;
+//     }
 
-    return digits;
-}
+//     return digits;
+// }
 
 int strcpy(char dest[], const char source[]) {
     int i = 0;
@@ -308,7 +309,7 @@ int strcpy(char dest[], const char source[]) {
     ;
 }
 
-void loader(int argc, char * argv[], void (*function)(int, char**)){
+void loader2(int argc, char * argv[], void (*function)(int, char**)){
     function(argc, argv);
     processNode * aux = currentProcess;
     exit();
