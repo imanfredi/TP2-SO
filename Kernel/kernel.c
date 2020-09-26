@@ -8,7 +8,7 @@
 #include <scheduler.h>
 #include <exceptions.h>
 #include <memoryManager.h>
-
+#include <stringFunctionsKernel.h>
 #define HEAP_SIZE 1024*1024*128
 
 extern uint8_t text;
@@ -52,13 +52,15 @@ void *initializeKernelBinary()
 
 int main(){
 
+	
 	initializeMemoryManager(heapBaseAddress,HEAP_SIZE);
-	initializeScheduler();
+	
 	load_idt();
+	initScreen();
+	initializeScheduler();
 	char *argv[]={"sampleCodeModuleAddress"};
 	addNewProcess(sampleCodeModuleAddress,1,argv);
     initExceptions(sampleCodeModuleAddress,getInitialSP());
-	initScreen();
 	_hlt();
 	return 0;
 

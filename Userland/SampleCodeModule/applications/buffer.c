@@ -1,8 +1,8 @@
 #include <buffer.h>
 
-int addToBuffer(uint8_t *buffer, char c, uint8_t *buffDim)
+int addToBuffer(uint8_t *buffer, char c, uint8_t *buffDim,uint8_t bufferMax)
 {
-    if (*buffDim < BUFFER_MAX - 1)
+    if (*buffDim < bufferMax - 1)
     {
         buffer[(*buffDim)++] = c;
         buffer[*buffDim] = 0;

@@ -28,14 +28,22 @@ static commandsT commandVec[COMMANDS] = {
         {"testException0",&DivideByZeroException, "Realiza un testeo de la exception dividir por cero.",1},
         {"testException6",&InvalidOpcodeException, "Realiza un testeo de la exception de Invalid Opcode.",1}};
 
-static uint8_t registers[REGISTERS][REG_NAME] = {"RIP","RSP","RAX", "RBX", "RCX", "RDX", "RSI", "RBP", "RDI","R8 ", "R9 ", "R10", "R11", "R12", "R13", "R14", "R15"};
+static uint8_t registers[REGISTERS][REG_NAME] = {"RIP","RSP","RAX", "RBX", "RCX", "RDX", "RSI", "RBP", 
+                                            "RDI","R8 ", "R9 ", "R10", "R11", "R12", "R13", "R14", "R15"};
 
-void runTerminal(uint8_t * buffer, uint8_t *buffDim)
-{          
+int runShell(int argc,char * argv[] ){   
+           
+        uint8_t buffer[BUFFERSIZE];
+        uint8_t * buffDim = 0;
         needScreen(0);
+        initVisualEnvironment();
+
+        printString((uint8_t*)SHELL_MESSAGE);
         uint8_t c;
+        
         while ((c = getChar()) != EXIT_CODE)
-        {  
+        {
+
             if (c != 0)
             {   
                 switch (c)
@@ -57,18 +65,17 @@ void runTerminal(uint8_t * buffer, uint8_t *buffDim)
                             }
                             break;
                     default:
-                            if(addToBuffer(buffer,c,buffDim)){
+                            if(addToBuffer(buffer,c,buffDim,BUFFERSIZE)){
                                 putChar(c);
                             }
                             else{
                                 readCommand(buffer,buffDim);
                             }
-                            break;
                 }
             }
         }
-
-    }
+        return 0;
+}
 
 static void help()
 {

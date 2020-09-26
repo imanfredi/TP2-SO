@@ -6,6 +6,7 @@ GLOBAL printError
 GLOBAL nextScreen
 GLOBAL needScreen
 GLOBAL initVisualEnvironment
+GLOBAL addNewProcess
 extern strlen
 
 getChar:
@@ -152,16 +153,6 @@ addNewProcess:
     push rbp
     mov rbp,rsp
     mov rax,12
-    int 80h
-    mov rsp,rbp
-    pop rbp
-    ret
-
-exit:
-
-    push rbp
-    mov rbp,rsp
-    mov rax,13 
     int 80h
     mov rsp,rbp
     pop rbp

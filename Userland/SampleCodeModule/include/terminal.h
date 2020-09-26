@@ -29,6 +29,7 @@ typedef struct
     uint8_t parameters;
 } commandsT;
 
-void runTerminal(uint8_t * buffer,uint8_t * buffDim);
+
+int runShell(int argc, char * argv[]);
 
 #endif

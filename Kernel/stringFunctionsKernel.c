@@ -48,6 +48,7 @@ uint32_t uintToBase(uint64_t value, uint8_t *buffer, uint32_t base)
 
 uint32_t uintToBaseWithLength(uint64_t value, uint8_t *buffer, uint32_t base, uint8_t size) {
       uint8_t *p = buffer + size - 1;
+      /* _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
       *p-- = 0;
       uint32_t digits = 0;
       //Calculate characters for each digit
@@ -62,4 +63,16 @@ uint32_t uintToBaseWithLength(uint64_t value, uint8_t *buffer, uint32_t base, ui
       }
 
       return digits;
+}
+
+int strcpy(char dest[], const char source[]) {
+    int i = 0;
+    while (source[i] != '\0') {
+        dest[i] = source[i];
+        i++;
+    }
+    dest[i] = 0;
+
+    return i;
+    ;
 }

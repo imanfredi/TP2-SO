@@ -13,14 +13,14 @@ static void splitScreen();
 uint64_t startAppsVisual(){
     
         if(initialized==0){
-            clearFullScreen();
+            //clearFullScreen();
             reloadInitialMemories();
             splitScreen();
             initialized=1;
         }else{
             for(int i=0;i<numberOfScreens;i++){
                 currentScreen=i;
-                clearScreen();
+                //clearScreen();
             }
         }
         

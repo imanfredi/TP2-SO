@@ -2,7 +2,7 @@
 #define _SCHEDULER_H
 #include <stdint.h>
 void initializeScheduler();
-uint64_t addNewProcess(void (*function)(int, char **), int argc, char **argv);
+uint64_t addNewProcess(int (*function)(int, char **), int argc, char **argv);
 void killProcess();
 void finishScheduler();
 void listProcess();

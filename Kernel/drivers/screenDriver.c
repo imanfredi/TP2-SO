@@ -3,11 +3,12 @@
 static uint8_t *const initialMem = (uint8_t *)0xB8000;
 static uint8_t *const endMem = (uint8_t *)0xB8FA0;
 
+static uint8_t * currentmem =(uint8_t *)0xB8000;
+
 
 void initScreen()
 {
     clearFullScreen();
-    printString((uint8_t *)"PRESIONE ENTER PARA INICIAR ",44,BLACK_WHITE);
       
 }
 
@@ -40,14 +41,16 @@ void newLine(uint8_t * pointer)
     
 }
 
+
+
+
 uint64_t printString(const uint8_t *string, uint64_t size, uint8_t colour)
 {
     uint64_t i = 0;
-    uint8_t * mem = initialMem;
     while (string[i] != 0 && i < size)
     {   
-        putChar(mem,string[i++],colour);
-        mem+=2;
+        putChar(currentmem,string[i++],colour);
+        currentmem+=2;
 
     }
 
