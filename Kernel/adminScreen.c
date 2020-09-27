@@ -46,7 +46,7 @@ static void splitScreen()
 
 int screenPartRequested(void){
 
-    int place=getCurrentPid();
+    //int place=getCurrentPid();
 
     if(numberOfScreens<MAXSCREENS && !screenVec[numberOfScreens].isReserved){
         colsPerScreen=(TOTAL_COLS-numberOfScreens*SEPARATOR_SIZE)/(numberOfScreens+1);

@@ -7,6 +7,8 @@ GLOBAL nextScreen
 GLOBAL needScreen
 GLOBAL initVisualEnvironment
 GLOBAL addNewProcess
+GLOBAL getSecondsElapsed
+GLOBAL getPid
 extern strlen
 
 getChar:
@@ -157,6 +159,26 @@ addNewProcess:
     mov rsp,rbp
     pop rbp
     ret
+
+getSecondsElapsed:
+    push rbp
+    mov rbp,rsp
+    mov rax,18
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
+
+getPid:
+    push rbp
+    mov rbp,rsp
+    mov rax,19
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
 
 section .bss
 

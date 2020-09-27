@@ -5,6 +5,7 @@
 #include <lib.h>
 #include <adminScreen.h>
 #include <scheduler.h>
+#include <time.h>
 
 
 /*Se declara el tipo que devuelven y luego lo que reciben. Si el parentesis esta vacio, significa que recibe cualquier cosa*/
@@ -23,9 +24,9 @@ static uint64_t nicePriority(Register_t * registers);
 static uint64_t blockProcess(Register_t * registers);
 static uint64_t  loopProcess(Register_t * registers);
 static uint64_t killProcess(Register_t * registers);
-
-
-static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen,&readMem,&time,&information,&temperature,&cpuModel,&getRegisters,&screenRequest,&startAppsVisual,&newProcess,&ps,&loopProcess,&blockProcess,&nicePriority,&killProcess};
+static uint64_t getSeconds(Register_t * registers);
+static uint64_t getPid(Register_t * registers);
+static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen,&readMem,&time,&information,&temperature,&cpuModel,&getRegisters,&screenRequest,&startAppsVisual,&newProcess,&ps,&loopProcess,&blockProcess,&nicePriority,&killProcess,&getSeconds,&getPid};
 
 uint64_t systemCallDispatcher(Register_t *parameters)
 {
@@ -131,4 +132,12 @@ static uint64_t nicePriority(Register_t * registers){
 
 static uint64_t killProcess(Register_t * registers){
     return kill((uint64_t)registers->rdi);
+}
+
+static uint64_t getPid(Register_t * registers){
+    return getCurrentPid();
+}
+
+static uint64_t getSeconds(Register_t * registers){
+    return seconds_elapsed();
 }

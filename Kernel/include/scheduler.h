@@ -4,6 +4,7 @@
 #define STACK_SIZE 1024 * 4
 #define INITIAL_PRIORITY 1
 #define INIT_PROCESS 1
+#define SIZE_REGISTER 16
 #define NULL 0
 
 typedef struct {

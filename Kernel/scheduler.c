@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stringFunctionsKernel.h>
 #include <adminScreen.h>
+#include <interrupts.h>
 
 enum state { READY = 0,
              BLOCKED,
@@ -23,8 +24,6 @@ static void enqueueProcess(processNode *process);
 static int isEmpty();
 static uint64_t newPid();
 static void printProcessInfo(processNode *n);
-static void dumpProcess(processNode p);
-static void dumpRSP(processNode p);
 static processNode *findNode(uint64_t pid);
 static int dummyProcess(int argc, char * argv[]);
 
@@ -44,25 +43,27 @@ static int dummyProcess(int argc, char * argv[]){
     while(1){
         _hlt();
     }
+    return 0;
 }
 
 void finishScheduler() {
     free2(processQueue);
 }
 
-uint64_t addNewProcess(int (*function)(int, char **), int argc, char **argv) {
+uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[]) {
     processNode *node = (processNode *)malloc2(sizeof(processNode) + STACK_SIZE);
 
     if (node == NULL)
         return -1;
 
+
+    // printString(argv[0],strlen(argv[0]),0x07);
+    // printString(argv[1],strlen(argv[1]),0x07);
+
     initPCB(node, argv[0], function, INIT_PROCESS);
-    // printString("Arranco: ", strlen("Arranco: "), 0x07);
-    // printString(node->process.name, strlen(node->process.name), 0x07);
-    // dumpRSP(*node);
     initStackFrame(function, argc, argv, node);
     enqueueProcess(node);
-    return 0;
+    return node->process.pid;
 }
 
 void initStackFrame(int (*function)(int, char **), int argc, char **argv, processNode *node) {
@@ -120,6 +121,7 @@ uint64_t schedule(uint64_t rsp) {
             if (currentProcess->process.state == KILLED) {
                 free2(currentProcess);
             }
+
         } while (currentProcess !=NULL && currentProcess->process.state != READY);
     }
     
@@ -206,8 +208,8 @@ uint64_t nice(uint64_t pid, uint64_t priority) {
 
 uint64_t listProcess() {
     processNode *n = processQueue->first;
-    char *message = "NAME   ID:   PRIORITY:   SP:   BP:   foreground:   ";
-    printStringScreen((uint8_t *)message, strlen(message), BLACK_WHITE);
+    uint8_t *message = "NAME   ID:   PRIORITY:   SP:   BP:   foreground:   ";
+    printStringScreen(message, strlen(message), BLACK_WHITE);
     newLineScreen();
 
     for (n = processQueue->first; n != NULL; n = n->next) {
@@ -221,28 +223,31 @@ uint64_t listProcess() {
 
 static void printProcessInfo(processNode *n) {
     uint8_t number[10];
-    uint8_t registers[17];
-    int len = 0;
+    uint8_t registers[SIZE_REGISTER+1];
+    uint64_t len = 0;
 
-    printStringScreen(n->process.name, strlen(n->process.name), 0x07);
+    printStringScreen((uint8_t*)n->process.name, (uint8_t*)strlen(n->process.name), 0x07);
 
-    printStringScreen("   ", strlen("   "), 0x07);
+    printStringScreen((uint8_t*)"   ", strlen((uint8_t*)"   "), 0x07);
 
     len = uintToBase(n->process.pid, (uint8_t *)number, 10);
     printStringScreen(number, len, 0x07);
-    printStringScreen("   ", strlen("   "), 0x07);
-
+    printStringScreen((uint8_t*)"   ", strlen((uint8_t*)"   "), 0x07);
+    
     len = uintToBase(n->process.priority, number, 10);
     printStringScreen(number, len, 0x07);
-    printStringScreen("   ", strlen("   "), 0x07);
+    printStringScreen((uint8_t*)"   ", strlen((uint8_t*)"   "), 0x07);
+    
 
-    len = uintToBaseWithLength(n->process.rsp, registers, 16, 17);
-    printStringScreen(registers, 17, 0x07);
-    printStringScreen("   ", strlen("   "), 0x07);
+    len = uintToBaseWithLength(n->process.rsp, registers, SIZE_REGISTER,SIZE_REGISTER+1);
+    printStringScreen(registers,SIZE_REGISTER+1, 0x07);
+    printStringScreen((uint8_t*)"   ", strlen((uint8_t*)"   "), 0x07);
 
-    len = uintToBaseWithLength(n->process.rbp, registers, 16, 17);
-    printStringScreen(registers, 17, 0x07);
-    printStringScreen("   ", strlen("   "), 0x07);
+
+    len = uintToBaseWithLength(n->process.rbp, registers, SIZE_REGISTER,SIZE_REGISTER+1);
+    printStringScreen(registers,SIZE_REGISTER+1, 0x07);
+    printStringScreen((uint8_t*)"   ", strlen((uint8_t*)"   "), 0x07);
+
 }
 
 void loader2(int argc, char *argv[], int (*function)(int, char **)) {
@@ -276,7 +281,32 @@ static processNode *findNode(uint64_t pid) {
     return NULL;
 }
 
-
 uint64_t getCurrentPid(){
     return currentProcess->process.pid;
+}
+
+char ** copyArgv(char ** buff, char ** argv, int argc){
+    char * dest = (char*)(buff + argc);
+
+    for(uint32_t i = 0; i < argc, i++){
+        for(char * aux = argv[i]; *aux; aux++){
+            
+        }
+    }
+
+    return buff;
+}
+
+static char ** copyArguments(char ** newArgv, int argc, char ** argv){
+    char * dest = (char*)(newArgv + argc);
+    for(uint16_t i = 0; i < argc; i++){
+        newArgv[i] = dest;
+        for(char* aux = argv[i]; *aux; aux++, dest++){
+            *dest = *aux;
+        }
+        *dest = 0;
+        dest++;
+    }
+    
+    return newArgv;
 }

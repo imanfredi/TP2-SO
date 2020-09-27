@@ -18,11 +18,14 @@ static void DivideByZeroException();
 static void InvalidOpcodeException();
 static void help();
 static void ps();
-static void loop();
+static void loop(uint8_t * seconds);
 static void kill(uint64_t pid);
 static void nice(uint8_t * pid,uint8_t * priority);
 static void block(uint64_t pid);
 static void memToStr(uint8_t *mem, uint8_t *memStr, uint8_t bytesToConvert);
+static int loopProcess(int argc, char *argv[]);
+static void loop(uint8_t * seconds);
+static void sleep(int seconds);
 
 static commandsT commandVec[COMMANDS] = {
         {"help", &help, "Lista la informacion de los comandos disponibles.", 1},
@@ -35,7 +38,7 @@ static commandsT commandVec[COMMANDS] = {
         {"testException6",&InvalidOpcodeException, "Realiza un testeo de la exception de Invalid Opcode.",1},
         {"ps", &ps, "Imprime la informacion de los procesos corriendo actualmente", 1},
         {"block",&block,"Bloquea el proceso dado su id",2},
-        {"loop",&loop,"Imprime su ID con un saludo cada una determinada cantidad de segundos",3},
+        {"loop",&loop,"Imprime su ID con un saludo cada una determinada cantidad de segundos",2},
         {"nice", &nice, "Cambia la prioridad de un proceso. Modo de uso \"nice <PID> <PRIORITY>\"",3},
         {"kill",&kill,"Mata el proceso dado un id",2} };
 
@@ -43,12 +46,14 @@ static uint8_t registers[REGISTERS][REG_NAME] = {"RIP","RSP","RAX", "RBX", "RCX"
                                             "RDI","R8 ", "R9 ", "R10", "R11", "R12", "R13", "R14", "R15"};
 
 int runShell(int argc,char * argv[] ){   
+        
            
         uint8_t buffer[BUFFERSIZE];
         uint8_t buffDim=0;
         needScreen();
 
         printString((uint8_t*)SHELL_MESSAGE);
+        
         uint8_t c;
         
         while ((c = getChar()) != EXIT_CODE)
@@ -236,10 +241,35 @@ static void ps(){
 }
 
 
-static void loop(){
-    //_loop()
+static void loop(uint8_t * seconds){
+    if(atoi(seconds) < 0){
+        return;
+    }
+
+    char * argv[]= {"./loopProcess",seconds};
+    addNewProcess(&loopProcess,2,argv);
 
 }
+
+static int loopProcess(int argc, char *argv[]){
+    
+    int pid = getPid();
+    int seconds = atoi(argv[1]);
+    while(1){
+        sleep(5);
+        printf("\nHola! %d\n",pid);
+    }
+    return 1;
+}
+
+static void sleep(int seconds){
+    int totalTime = getSecondsElapsed()+seconds;
+
+    while(getSecondsElapsed() <= totalTime){
+        
+    };
+}
+
 
 static void nice(uint8_t * pid,uint8_t * priority){
     _nice(atoi(pid),atoi(priority));
