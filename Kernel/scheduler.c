@@ -293,31 +293,31 @@ static uint64_t nice(uint64_t pid){
 
 
 static void printProcessInfo(processNode * n) {
-    char pid[2];
-    char priority[3];
-    char rsp[9];
-    char rbp[9];
+    uint8_t number[10];
+    uint8_t registers[17];
     int len = 0;
 
     printString(n->process.name, strlen(n->process.name), 0x07);
     printString("        ", strlen("        "), 0x07);
 
-    len = uintToBaseWithLength(n->process.pid, (uint8_t *)pid + len, 10, 2);
-    printString(pid, len, 0x07);
+    len = uintToBase(n->process.pid, (uint8_t *)number, 10);
+    printString(number, len, 0x07);
     printString("        ", strlen("        "), 0x07);
 
-    len = uintToBaseWithLength(n->process.priority, priority, 10, 3);
-    printString(priority, len, 0x07);
+    len = uintToBase(n->process.priority, number, 10);
+    printString(number, len, 0x07);
     printString("        ", strlen("        "), 0x07);
 
-    len = uintToBaseWithLength(n->process.rsp, rsp, 16, 9);
-    printString(rsp, len, 0x07);
+    len = uintToBaseWithLength(n->process.rsp, registers, 16, 17);
+    printString(registers, 17, 0x07);
     printString("        ", strlen("        "), 0x07);
 
-    len = uintToBaseWithLength(n->process.rbp, rbp, 16, 9);
-    printString(rbp, len, 0x07);
+    len = uintToBaseWithLength(n->process.rbp, registers, 16, 17);
+    printString(registers, 17, 0x07);
     printString("        ", strlen("        "), 0x07);
 }
+
+
 
 void loader2(int argc, char *argv[], int (*function)(int, char **)) {
     function(argc, argv);

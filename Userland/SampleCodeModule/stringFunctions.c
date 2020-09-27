@@ -102,8 +102,8 @@ uint32_t uintToBaseWithLength(uint64_t value, uint8_t *buffer, uint32_t base, ui
       while (buffer <= p) {
             *p-- = '0';
       }
-
-      return digits;
+    
+      return p;
 }
 
 int printf(const char *format, ...){
