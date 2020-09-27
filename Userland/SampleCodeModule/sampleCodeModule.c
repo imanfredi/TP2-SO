@@ -10,7 +10,7 @@ int main() {
   
   char *argv[] = {"./shell"};
   addNewProcess(&runShell,1,argv);
-  
+  while(1);
   return 0;
  
   

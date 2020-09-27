@@ -17,6 +17,8 @@ void _invalidOpcodeException();
 
 uint64_t * _inforeg();
 
+void _ps();
+
 
 
 #endif

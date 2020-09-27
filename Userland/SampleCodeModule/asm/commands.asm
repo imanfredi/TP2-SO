@@ -5,6 +5,7 @@ GLOBAL _information
 GLOBAL _model
 GLOBAL _invalidOpcodeException
 GLOBAL _inforeg
+GLOBAL _ps
 section .text
 
 
@@ -86,6 +87,19 @@ _inforeg:
     mov rbp,rsp
     mov rax,9
     int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
+_ps:
+    push rbp
+    mov rbp,rsp
+
+    push rax
+    mov rax, 13
+    int 80h
+    pop rax
+
     mov rsp,rbp
     pop rbp
     ret

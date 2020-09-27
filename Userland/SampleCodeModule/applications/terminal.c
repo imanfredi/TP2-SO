@@ -1,5 +1,6 @@
 #include <terminal.h>
 
+
 static uint8_t argDim =0;
 static uint8_t arg1[ARG_SIZE]={0};
 static uint8_t arg2[ARG_SIZE]={0};
@@ -16,6 +17,10 @@ static void temperature();
 static void DivideByZeroException();
 static void InvalidOpcodeException();
 static void help();
+static void ps();
+static void loop();
+static void nice(uint64_t pid,uint64_t priority);
+static void block(uint64_t pid);
 static void memToStr(uint8_t *mem, uint8_t *memStr, uint8_t bytesToConvert);
 
 static commandsT commandVec[COMMANDS] = {
@@ -26,7 +31,11 @@ static commandsT commandVec[COMMANDS] = {
         {"temperature", &temperature, "Informacion sobre la temperatura del procesador.", 1},
         {"information", &information, "Informacion sobre marca y modelo del procesador.", 1},
         {"testException0",&DivideByZeroException, "Realiza un testeo de la exception dividir por cero.",1},
-        {"testException6",&InvalidOpcodeException, "Realiza un testeo de la exception de Invalid Opcode.",1}};
+        {"testException6",&InvalidOpcodeException, "Realiza un testeo de la exception de Invalid Opcode.",1},
+        {"ps", &ps, "Imprime la informacion de los procesos corriendo actualmente", 1},
+        {"block",&block,"Bloquea el proceso dado su id"},
+        {"loop",&loop,"Imprime su ID con un saludo cada una determinada cantidad de segundos",3},
+        {"nice", &nice, "Cambia la prioridad de un proceso. Modo de uso \"nice <PID> <PRIORITY>\"",3} };
 
 static uint8_t registers[REGISTERS][REG_NAME] = {"RIP","RSP","RAX", "RBX", "RCX", "RDX", "RSI", "RBP", 
                                             "RDI","R8 ", "R9 ", "R10", "R11", "R12", "R13", "R14", "R15"};
@@ -200,16 +209,34 @@ static void memToStr(uint8_t * mem, uint8_t* memStr, uint8_t bytesToConvert){
     memStr[j] = 0;
 }
 
-static void inforeg()
-{   
+static void inforeg(){
     printString((uint8_t*)"Impresion de registros: \n");
     uint8_t number[SIZE_OF_REGISTER + 1];
     uint64_t *registerValues = _inforeg();
-      for (uint8_t i = 0; i < REGISTERS; i++) {
+    for (uint8_t i = 0; i < REGISTERS; i++) {
             uintToBaseWithLength(registerValues[i], number, 16, SIZE_OF_REGISTER + 1);
             printf(" %c %s: %s\n",BULLET_POINT,registers[i],number);
-    }   
+    }
 }
+
+
+static void ps(){
+    _ps();
+}
+
+
+static void loop(){
+
+}
+
+static void nice(uint64_t pid,uint64_t priority){
+   // _nice(pid,priority);
+}
+
+static void block(uint64_t pid){
+   // _block(pid);
+}
+
 
 static void DivideByZeroException(){
     int a=1;

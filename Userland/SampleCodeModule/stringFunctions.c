@@ -1,8 +1,8 @@
 #include <stdint.h>
 #include <selfLib.h>
 #include <stdarg.h>
-#include <stringFunctions.h>
 #include <utils.h>
+#include <stringFunctions.h>
 
 int strcmp(const uint8_t *s1, const uint8_t *s2)
 {
