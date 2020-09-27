@@ -15,4 +15,7 @@ int printf(const char *format, ...);
 uint64_t stringHexaToNumber(uint8_t *string);
 uint32_t uintToBaseWithLength(uint64_t value, uint8_t *buffer, uint32_t base, uint8_t size);
 void *memcpy(void *destination, const void *source, uint64_t length);
+int atoi(const uint8_t * arr);
+
+
 #endif

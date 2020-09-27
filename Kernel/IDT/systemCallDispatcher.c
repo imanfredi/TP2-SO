@@ -22,9 +22,10 @@ static uint64_t ps(Register_t * registers);
 static uint64_t nicePriority(Register_t * registers);
 static uint64_t blockProcess(Register_t * registers);
 static uint64_t  loopProcess(Register_t * registers);
+static uint64_t killProcess(Register_t * registers);
 
 
-static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen,&readMem,&time,&information,&temperature,&cpuModel,&getRegisters,&screenRequest,&startAppsVisual,&newProcess,&ps,&loopProcess,&blockProcess,&nicePriority};
+static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen,&readMem,&time,&information,&temperature,&cpuModel,&getRegisters,&screenRequest,&startAppsVisual,&newProcess,&ps,&loopProcess,&blockProcess,&nicePriority,&killProcess};
 
 uint64_t systemCallDispatcher(Register_t *parameters)
 {
@@ -103,7 +104,7 @@ static uint64_t temperature(Register_t *registers){
 }
 
 static uint64_t screenRequest(Register_t * registers){
-    return screenPartRequested((uint8_t)registers->rdi);
+    return screenPartRequested();
 }
 
 static uint64_t newProcess(Register_t * registers){
@@ -115,18 +116,19 @@ static uint64_t ps(Register_t * registers){
 }
 
 static uint64_t  loopProcess(Register_t * registers){
+    ;
 
 }
 
 static uint64_t blockProcess(Register_t * registers){
-
-   
-
-
+    return block((uint64_t)registers->rdi);
 }
 
 
 static uint64_t nicePriority(Register_t * registers){
-  //  return ni(uint64_t)registers->rdi;
-    
+  return nice((uint64_t)registers->rdi,(uint64_t)registers->rsi);
+}
+
+static uint64_t killProcess(Register_t * registers){
+    return kill((uint64_t)registers->rdi);
 }

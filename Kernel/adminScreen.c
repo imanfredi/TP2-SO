@@ -1,10 +1,10 @@
 #include <adminScreen.h>
+#include <scheduler.h>
 
 static screenT screenVec[MAXSCREENS];
 static uint8_t currentScreen;
 static uint8_t numberOfScreens=0;
 static uint8_t colsPerScreen;
-static uint8_t initialized=0;
 static uint8_t *const initialMem = (uint8_t *)0xB8000;
 static void scrollDown();
 static void reloadInitialMemories();
@@ -12,18 +12,10 @@ static void splitScreen();
 
 uint64_t startAppsVisual(){
     
-        if(initialized==0){
             //clearFullScreen();
             reloadInitialMemories();
             splitScreen();
-            initialized=1;
-        }else{
-            for(int i=0;i<numberOfScreens;i++){
-                currentScreen=i;
-                //clearScreen();
-            }
-        }
-        
+
         return 1;
 }
 
@@ -52,14 +44,17 @@ static void splitScreen()
     return;
 }
 
-int screenPartRequested(uint8_t place){
+int screenPartRequested(void){
 
-    if(numberOfScreens<MAXSCREENS && !screenVec[place].isReserved){
+    int place=getCurrentPid();
+
+    if(numberOfScreens<MAXSCREENS && !screenVec[numberOfScreens].isReserved){
         colsPerScreen=(TOTAL_COLS-numberOfScreens*SEPARATOR_SIZE)/(numberOfScreens+1);
         currentScreen=numberOfScreens++;
         screenVec[currentScreen].currentCol = 0;
         screenVec[currentScreen].currentRow = 0;
         screenVec[currentScreen].isReserved=1;
+        startAppsVisual();
         return 1;
     }
     return 0;

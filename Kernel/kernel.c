@@ -58,7 +58,7 @@ int main(){
 	load_idt();
 	initScreen();
 	initializeScheduler();
-	char *argv[]={"sampleCodeModuleAddress"};
+	char *argv[]={"./sample"};
 	addNewProcess(sampleCodeModuleAddress,1,argv);
     initExceptions(sampleCodeModuleAddress,getInitialSP());
 	_hlt();

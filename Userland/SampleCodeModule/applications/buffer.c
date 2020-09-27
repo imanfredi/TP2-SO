@@ -2,6 +2,8 @@
 
 int addToBuffer(uint8_t *buffer, char c, uint8_t *buffDim,uint8_t bufferMax)
 {
+
+    
     if (*buffDim < bufferMax - 1)
     {
         buffer[(*buffDim)++] = c;

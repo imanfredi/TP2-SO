@@ -19,6 +19,8 @@ int toNumber(char character){
     return -1;
 }
 
+
+
 uint64_t pow(uint64_t base, uint64_t exp)
 {
     uint64_t res = 1;

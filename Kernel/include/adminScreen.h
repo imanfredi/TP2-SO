@@ -9,7 +9,7 @@
 #define SEPARATOR_SIZE 4
 
 uint64_t startAppsVisual();
-int screenPartRequested(uint8_t place);
+int screenPartRequested();
 uint8_t changeScreen(uint8_t screen);
 int clearScreen();
 void newLineScreen();

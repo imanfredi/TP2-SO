@@ -1,18 +1,10 @@
 /* sampleCodeModule.c */
-#include <terminal.h>
 #include <selfLib.h>
+#include <terminal.h>
 
 int main() {
-  
+    char *argv[] = {"./shell"};
+    addNewProcess(&runShell, 1, argv);
 
- // addApplication(&runCalculator,CALC_MESSAGE);
- // addApplication(&runTerminal,SHELL_MESSAGE);
-  
-  char *argv[] = {"./shell"};
-  addNewProcess(&runShell,1,argv);
-  while(1);
-  return 0;
- 
-  
-
+    return 0;
 }

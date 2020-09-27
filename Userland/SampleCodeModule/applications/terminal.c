@@ -19,7 +19,8 @@ static void InvalidOpcodeException();
 static void help();
 static void ps();
 static void loop();
-static void nice(uint64_t pid,uint64_t priority);
+static void kill(uint64_t pid);
+static void nice(uint8_t * pid,uint8_t * priority);
 static void block(uint64_t pid);
 static void memToStr(uint8_t *mem, uint8_t *memStr, uint8_t bytesToConvert);
 
@@ -33,9 +34,10 @@ static commandsT commandVec[COMMANDS] = {
         {"testException0",&DivideByZeroException, "Realiza un testeo de la exception dividir por cero.",1},
         {"testException6",&InvalidOpcodeException, "Realiza un testeo de la exception de Invalid Opcode.",1},
         {"ps", &ps, "Imprime la informacion de los procesos corriendo actualmente", 1},
-        {"block",&block,"Bloquea el proceso dado su id"},
+        {"block",&block,"Bloquea el proceso dado su id",2},
         {"loop",&loop,"Imprime su ID con un saludo cada una determinada cantidad de segundos",3},
-        {"nice", &nice, "Cambia la prioridad de un proceso. Modo de uso \"nice <PID> <PRIORITY>\"",3} };
+        {"nice", &nice, "Cambia la prioridad de un proceso. Modo de uso \"nice <PID> <PRIORITY>\"",3},
+        {"kill",&kill,"Mata el proceso dado un id",2} };
 
 static uint8_t registers[REGISTERS][REG_NAME] = {"RIP","RSP","RAX", "RBX", "RCX", "RDX", "RSI", "RBP", 
                                             "RDI","R8 ", "R9 ", "R10", "R11", "R12", "R13", "R14", "R15"};
@@ -43,9 +45,8 @@ static uint8_t registers[REGISTERS][REG_NAME] = {"RIP","RSP","RAX", "RBX", "RCX"
 int runShell(int argc,char * argv[] ){   
            
         uint8_t buffer[BUFFERSIZE];
-        uint8_t * buffDim = 0;
-        needScreen(0);
-        initVisualEnvironment();
+        uint8_t buffDim=0;
+        needScreen();
 
         printString((uint8_t*)SHELL_MESSAGE);
         uint8_t c;
@@ -59,26 +60,31 @@ int runShell(int argc,char * argv[] ){
                 {
                     case '\n':
                                 putChar('\n');
-                                readCommand(buffer,buffDim);
+                                readCommand(buffer,&buffDim);
                                 break;
                     case CLEAR_SCREEN_CODE:
+
                                 clear();
                                 printString((uint8_t*)SHELL_MESSAGE);
                                 printString(buffer);
                                 break;                    
                     case '\b':
-                            if (*buffDim > 0)
+                            if (buffDim > 0)
                             {
-                                removeBuffer(buffer,buffDim);
+                                removeBuffer(buffer,&buffDim);
                                 putChar(c);
                             }
                             break;
                     default:
-                            if(addToBuffer(buffer,c,buffDim,BUFFERSIZE)){
+                            
+                            if(addToBuffer(buffer,c,&buffDim,BUFFERSIZE)){
+                                
                                 putChar(c);
                             }
                             else{
-                                readCommand(buffer,buffDim);
+
+
+                                readCommand(buffer,&buffDim);
                             }
                 }
             }
@@ -114,11 +120,15 @@ static void readCommand(uint8_t * buffer, uint8_t* buffDim)
                     {
                         commandVec[index].function(arguments[1]);
                     }
+                    else if(commandVec[index].parameters == 3){
+                        commandVec[index].function(arguments[1],arguments[2]);
+                    }
                 }
                 else
                       printString((uint8_t *)"Numero erroneo de argumentos\n");
             }
             else{
+                
                 printString((uint8_t *)"No existe el comando\n");
             }
             cleanArgs();
@@ -222,19 +232,25 @@ static void inforeg(){
 
 static void ps(){
     _ps();
+    putChar('\n');
 }
 
 
 static void loop(){
+    //_loop()
 
 }
 
-static void nice(uint64_t pid,uint64_t priority){
-   // _nice(pid,priority);
+static void nice(uint8_t * pid,uint8_t * priority){
+    _nice(atoi(pid),atoi(priority));
 }
 
 static void block(uint64_t pid){
-   // _block(pid);
+   _block(atoi(pid));
+}
+
+static void kill(uint64_t pid){
+    _kill(atoi(pid));
 }
 
 

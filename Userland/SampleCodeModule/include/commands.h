@@ -19,6 +19,12 @@ uint64_t * _inforeg();
 
 void _ps();
 
+void _nice(uint64_t pid,uint64_t priority);
 
+void _block(uint64_t pid);
+
+void _loop();
+
+void _kill(uint64_t pid);
 
 #endif
