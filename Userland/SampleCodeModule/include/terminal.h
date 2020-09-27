@@ -10,7 +10,7 @@
 
 #define BUFFERSIZE 80
 #define CLEAR_SCREEN_CODE 252
-#define COMMANDS 8
+#define COMMANDS 12
 #define SIZE 15
 #define DESC_SIZE 80
 #define ARG_MAX 3
