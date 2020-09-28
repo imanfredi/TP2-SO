@@ -163,7 +163,7 @@ addNewProcess:
 getSecondsElapsed:
     push rbp
     mov rbp,rsp
-    mov rax,18
+    mov rax,17
     int 80h
     mov rsp,rbp
     pop rbp
@@ -173,7 +173,7 @@ getSecondsElapsed:
 getPid:
     push rbp
     mov rbp,rsp
-    mov rax,19
+    mov rax,18
     int 80h
     mov rsp,rbp
     pop rbp

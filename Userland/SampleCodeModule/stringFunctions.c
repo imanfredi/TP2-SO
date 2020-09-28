@@ -89,7 +89,7 @@ uint32_t uintToBaseWithLength(uint64_t value, uint8_t *buffer, uint32_t base, ui
         *p-- = '0';
     }
 
-    return p;
+    return size;
 }
 
 int printf(const char *format, ...) {

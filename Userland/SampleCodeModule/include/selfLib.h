@@ -11,7 +11,6 @@ uint8_t printError(uint8_t * string);
 uint8_t needScreen();
 uint8_t initVisualEnvironment();
 void addNewProcess(int (*function)(int, char **), int argc, char **argv);
-void exit();
 uint64_t getPid();
 uint64_t getSecondsElapsed();
 

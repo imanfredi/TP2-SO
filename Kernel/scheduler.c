@@ -1,7 +1,6 @@
 #include <lib.h>
 #include <memoryManager.h>
 #include <scheduler.h>
-#include <screenDriver.h>
 #include <stdint.h>
 #include <stringFunctionsKernel.h>
 #include <adminScreen.h>
@@ -26,6 +25,7 @@ static uint64_t newPid();
 static void printProcessInfo(processNode *n);
 static processNode *findNode(uint64_t pid);
 static int dummyProcess(int argc, char * argv[]);
+static char ** copyArgv(char ** buff, char ** argv, int argc);
 
 void initializeScheduler() {
     pidCounter = 0;
@@ -56,11 +56,8 @@ uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[]) {
     if (node == NULL)
         return -1;
 
-
-    // printString(argv[0],strlen(argv[0]),0x07);
-    // printString(argv[1],strlen(argv[1]),0x07);
-
     initPCB(node, argv[0], function, INIT_PROCESS);
+    argv = copyArgv((char **) ((uint64_t)node + sizeof(processNode)), argv, argc);    
     initStackFrame(function, argc, argv, node);
     enqueueProcess(node);
     return node->process.pid;
@@ -208,8 +205,8 @@ uint64_t nice(uint64_t pid, uint64_t priority) {
 
 uint64_t listProcess() {
     processNode *n = processQueue->first;
-    uint8_t *message = "NAME   ID:   PRIORITY:   SP:   BP:   foreground:   ";
-    printStringScreen(message, strlen(message), BLACK_WHITE);
+    char *message = "NAME   ID:   PRIORITY:   SP:   BP:   foreground:   ";
+    printStringScreen((uint8_t*)message, strlen((uint8_t *)message), BLACK_WHITE);
     newLineScreen();
 
     for (n = processQueue->first; n != NULL; n = n->next) {
@@ -226,7 +223,8 @@ static void printProcessInfo(processNode *n) {
     uint8_t registers[SIZE_REGISTER+1];
     uint64_t len = 0;
 
-    printStringScreen((uint8_t*)n->process.name, (uint8_t*)strlen(n->process.name), 0x07);
+
+    printStringScreen((uint8_t*)n->process.name, (uint64_t)strlen((uint8_t*)n->process.name), 0x07);
 
     printStringScreen((uint8_t*)"   ", strlen((uint8_t*)"   "), 0x07);
 
@@ -273,7 +271,7 @@ uint64_t kill(uint64_t pid) {
 static processNode *findNode(uint64_t pid) {
     processNode *curr = processQueue->first;
     while (curr != NULL) {
-        if (curr->process.pid = pid) {
+        if (curr->process.pid == pid) {
             return curr;
         }
         curr = curr->next;
@@ -285,28 +283,17 @@ uint64_t getCurrentPid(){
     return currentProcess->process.pid;
 }
 
-char ** copyArgv(char ** buff, char ** argv, int argc){
+static char ** copyArgv(char ** buff, char ** argv, int argc){
     char * dest = (char*)(buff + argc);
-
-    for(uint32_t i = 0; i < argc, i++){
-        for(char * aux = argv[i]; *aux; aux++){
-            
-        }
-    }
-
-    return buff;
-}
-
-static char ** copyArguments(char ** newArgv, int argc, char ** argv){
-    char * dest = (char*)(newArgv + argc);
-    for(uint16_t i = 0; i < argc; i++){
-        newArgv[i] = dest;
-        for(char* aux = argv[i]; *aux; aux++, dest++){
+ 
+    for(uint32_t i = 0; i < argc; i++){
+        buff[i] = dest;
+        for(char * aux = argv[i]; *aux; aux++, dest++){
             *dest = *aux;
         }
         *dest = 0;
         dest++;
     }
-    
-    return newArgv;
+
+    return buff;
 }

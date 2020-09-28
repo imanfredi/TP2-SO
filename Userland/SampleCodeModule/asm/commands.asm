@@ -7,7 +7,6 @@ GLOBAL _invalidOpcodeException
 GLOBAL _inforeg
 GLOBAL _ps
 GLOBAL _nice
-GLOBAL _loop
 GLOBAL _block
 GLOBAL _kill
 section .text
@@ -104,23 +103,11 @@ _ps:
     pop rbp
     ret
 
-
-_loop:
-    
-    push rbp
-    mov rbp,rsp
-
-    mov rax,14
-    int 80h
-    mov rsp,rbp
-    pop rbp
-    ret
-
 _block:
 
     push rbp
     mov rbp,rsp
-    mov rax,15
+    mov rax,14
     int 80h
     mov rsp,rbp
     pop rbp
@@ -131,7 +118,7 @@ _nice:
 
     push rbp
     mov rbp,rsp
-    mov rax,16
+    mov rax,15
     int 80h
     mov rsp,rbp
     pop rbp
@@ -142,7 +129,7 @@ _kill:
 
     push rbp 
     mov rbp,rsp
-    mov rax,17
+    mov rax,16
     int 80h
     mov rsp,rbp
     pop rbp

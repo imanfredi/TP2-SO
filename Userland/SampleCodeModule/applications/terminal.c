@@ -19,9 +19,9 @@ static void InvalidOpcodeException();
 static void help();
 static void ps();
 static void loop(uint8_t * seconds);
-static void kill(uint64_t pid);
+static void kill(uint8_t * pid);
 static void nice(uint8_t * pid,uint8_t * priority);
-static void block(uint64_t pid);
+static void block(uint8_t * pid);
 static void memToStr(uint8_t *mem, uint8_t *memStr, uint8_t bytesToConvert);
 static int loopProcess(int argc, char *argv[]);
 static void loop(uint8_t * seconds);
@@ -246,7 +246,7 @@ static void loop(uint8_t * seconds){
         return;
     }
 
-    char * argv[]= {"./loopProcess",seconds};
+    char * argv[]= {"./loopProcess",(char *)seconds};
     addNewProcess(&loopProcess,2,argv);
 
 }
@@ -254,9 +254,11 @@ static void loop(uint8_t * seconds){
 static int loopProcess(int argc, char *argv[]){
     
     int pid = getPid();
-    int seconds = atoi(argv[1]);
+    int seconds = atoi((uint8_t*)argv[1]);
+    // printf("argv[1]: %s\n", argv[1]);
+    // printf("atoi: %d\n", seconds);
     while(1){
-        sleep(5);
+        sleep(seconds);
         printf("\nHola! %d\n",pid);
     }
     return 1;
@@ -275,11 +277,11 @@ static void nice(uint8_t * pid,uint8_t * priority){
     _nice(atoi(pid),atoi(priority));
 }
 
-static void block(uint64_t pid){
+static void block(uint8_t * pid){
    _block(atoi(pid));
 }
 
-static void kill(uint64_t pid){
+static void kill(uint8_t * pid){
     _kill(atoi(pid));
 }
 

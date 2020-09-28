@@ -2,6 +2,7 @@
 #include <stringFunctionsKernel.h>
 #include <stdarg.h>
 #include <utilsKernel.h>
+#include <adminScreen.h>
 
 int strcmp(const uint8_t *s1, const uint8_t *s2)
 {
@@ -163,7 +164,7 @@ int printf(const char *format, ...){
     }
     buffer[j++] = '\0';
     
-    printString(buffer);
+    printStringScreen(buffer, strlen(buffer), 0x07);
    
     va_end(vl);
     return j;

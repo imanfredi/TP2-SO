@@ -22,11 +22,10 @@ static uint64_t newProcess(Register_t * registers);
 static uint64_t ps(Register_t * registers);
 static uint64_t nicePriority(Register_t * registers);
 static uint64_t blockProcess(Register_t * registers);
-static uint64_t  loopProcess(Register_t * registers);
 static uint64_t killProcess(Register_t * registers);
 static uint64_t getSeconds(Register_t * registers);
 static uint64_t getPid(Register_t * registers);
-static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen,&readMem,&time,&information,&temperature,&cpuModel,&getRegisters,&screenRequest,&startAppsVisual,&newProcess,&ps,&loopProcess,&blockProcess,&nicePriority,&killProcess,&getSeconds,&getPid};
+static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen,&readMem,&time,&information,&temperature,&cpuModel,&getRegisters,&screenRequest,&startAppsVisual,&newProcess,&ps,&blockProcess,&nicePriority,&killProcess,&getSeconds,&getPid};
 
 uint64_t systemCallDispatcher(Register_t *parameters)
 {
@@ -114,11 +113,6 @@ static uint64_t newProcess(Register_t * registers){
 
 static uint64_t ps(Register_t * registers){
     return listProcess();
-}
-
-static uint64_t  loopProcess(Register_t * registers){
-    ;
-
 }
 
 static uint64_t blockProcess(Register_t * registers){
