@@ -37,8 +37,8 @@ static commandsT commandVec[COMMANDS] = {
         {"testException0",&DivideByZeroException, "Realiza un testeo de la exception dividir por cero.",1},
         {"testException6",&InvalidOpcodeException, "Realiza un testeo de la exception de Invalid Opcode.",1},
         {"ps", &ps, "Imprime la informacion de los procesos corriendo actualmente", 1},
-        {"block",&block,"Bloquea el proceso dado su id",2},
-        {"loop",&loop,"Imprime su ID con un saludo cada una determinada cantidad de segundos",2},
+        {"block",&block,"Bloquea el proceso dado su id. Modo de uso \"block <PID>\"",2},
+        {"loop",&loop,"Imprime su ID con un saludo cada una determinada cantidad de segundos. Modo de uso \"loop <SECONDS>\"",2},
         {"nice", &nice, "Cambia la prioridad de un proceso. Modo de uso \"nice <PID> <PRIORITY>\"",3},
         {"kill",&kill,"Mata el proceso dado un id",2} };
 
