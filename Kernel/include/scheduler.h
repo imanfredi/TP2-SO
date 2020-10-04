@@ -5,6 +5,8 @@
 #define INITIAL_PRIORITY 1
 #define INIT_PROCESS 1
 #define SIZE_REGISTER 16
+#define QUANTUM 1
+#define MAX_PRIORITY 10
 #define NULL 0
 
 typedef struct {
@@ -39,6 +41,7 @@ typedef struct {
     uint32_t state;
     void *entryPoint;
     uint64_t priority;
+    uint64_t slotsLeft;
 } pcb_t;
 
 
