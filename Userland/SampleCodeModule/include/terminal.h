@@ -12,7 +12,7 @@
 #define CLEAR_SCREEN_CODE 252
 #define COMMANDS 13
 #define SIZE 15
-#define DESC_SIZE 80
+#define DESC_SIZE 100
 #define ARG_MAX 3
 #define ARG_SIZE 18
 #define TOREAD 32
