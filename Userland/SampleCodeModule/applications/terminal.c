@@ -26,6 +26,10 @@ static void memToStr(uint8_t *mem, uint8_t *memStr, uint8_t bytesToConvert);
 static int loopProcess(int argc, char *argv[]);
 static void loop(uint8_t * seconds);
 static void sleep(int seconds);
+static void runTestMM();
+static void runTestPrio();
+static void runTestProcesses();
+static void runTestSync();
 
 static commandsT commandVec[COMMANDS] = {
         {"help", &help, "Lista la informacion de los comandos disponibles.", 1},
@@ -40,7 +44,11 @@ static commandsT commandVec[COMMANDS] = {
         {"block",&block,"Bloquea el proceso dado su id. Modo de uso \"block <PID>\"",2},
         {"loop",&loop,"Imprime su ID con un saludo cada una determinada cantidad de segundos. Modo de uso \"loop <SECONDS>\"",2},
         {"nice", &nice, "Cambia la prioridad de un proceso. Modo de uso \"nice <PID> <PRIORITY>\"",3},
-        {"kill",&kill,"Mata el proceso dado un id",2} };
+        {"kill",&kill,"Mata el proceso dado un id",2},
+        {"runTestMM",&runTestMM,"Realiza un testeo del memory manager",1},
+        {"runTestPrio",&runTestPrio,"Realiza un testeo de las prioridades",1},
+        {"runTestProcesses",&runTestProcesses,"Realiza un testeo de los procesos",1},
+        {"runTestSync",&runTestSync,"Realiza un testo de la sincronizacion de procesos",1}};
 
 static uint8_t registers[REGISTERS][REG_NAME] = {"RIP","RSP","RAX", "RBX", "RCX", "RDX", "RSI", "RBP", 
                                             "RDI","R8 ", "R9 ", "R10", "R11", "R12", "R13", "R14", "R15"};
@@ -317,4 +325,23 @@ static void temperature(void){
     uint8_t temp = _temperature();
     uintToBase(temp,str,10);
     printf(" %cTemperatura del CPU: %s\n",BULLET_POINT,str);
+}
+
+static void runTestProcesses(){
+    char *argv[] = {"./test_processes"};
+    addNewProcess(&test_processes,1,argv);
+}
+static void runTestPrio(){
+    char *argv[] = {"./test_prio"};
+    addNewProcess(&test_prio,1,argv);
+}
+
+static void runTestMM(){
+    char *argv[] = {"./test_MM"};
+    addNewProcess(&test_mm,1,argv);
+}
+
+static void runTestSync(){
+    //char *argv[] = {"./test_sync"};
+   // addNewProcess(&test_sync,1,argv);
 }

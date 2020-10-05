@@ -2,7 +2,6 @@
 
 #define NULL 0
 #define HEAP_SIZE 1024 * 1024 * 128  //la maxima cantidad que soporta nuestro memory manager
-
 typedef long Align;
 
 union header { /* header del bloque */
@@ -32,7 +31,7 @@ void initializeMemoryManager(char *heapInit, unsigned long size) {
     freep->s.next = NULL;
 }
 
-void *malloc2(unsigned nbytes) {
+void * malloc2(unsigned nbytes) {
     Header *curr, *prevp;
     unsigned nunits;
    

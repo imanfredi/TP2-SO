@@ -27,6 +27,7 @@ static processNode *findNode(uint64_t pid);
 static int dummyProcess(int argc, char *argv[]);
 static char **copyArgv(char **buff, char **argv, int argc);
 
+
 void initializeScheduler() {
     pidCounter = 0;
     processQueue = malloc2(sizeof(processQueue_t));
@@ -134,7 +135,6 @@ uint64_t schedule(uint64_t rsp) {
     else {
         currentProcess->process.slotsLeft--;
     }
-    printProcessInfo(currentProcess);
 
     return currentProcess->process.rsp;
 }
@@ -158,6 +158,8 @@ processNode *dequeueProcess() {
 
     return ans;
 }
+
+
 
 void enqueueProcess(processNode *process) {
     if (isEmpty())
@@ -195,6 +197,12 @@ uint64_t block(uint64_t pid) {
         }
     }
     return -1;
+}
+
+uint64_t yield(){
+    currentProcess->process.slotsLeft=0;
+    callTimerTick();
+    return 0;
 }
 
 uint64_t nice(uint64_t pid, uint64_t priority) {

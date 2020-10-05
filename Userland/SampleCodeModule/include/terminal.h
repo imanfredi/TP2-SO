@@ -7,11 +7,12 @@
 #include <stdint.h>
 #include <stringFunctions.h>
 #include <utils.h>
+#include<test_util.h>
 
 #define BUFFERSIZE 80
 #define CLEAR_SCREEN_CODE 252
-#define COMMANDS 13
-#define SIZE 15
+#define COMMANDS 17
+#define SIZE 25
 #define DESC_SIZE 100
 #define ARG_MAX 3
 #define ARG_SIZE 18

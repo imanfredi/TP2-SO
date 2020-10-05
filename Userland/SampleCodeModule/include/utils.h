@@ -14,4 +14,5 @@ void mathPow(int base, int exp, double *number);
 void Abs(double number, double *aux);
 int isHexaDir(char * buffer);
 int isHexaLetter(char c);
+void * memset(void * destination, int32_t character, uint64_t length);
 #endif

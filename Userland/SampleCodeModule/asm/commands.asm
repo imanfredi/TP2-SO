@@ -9,6 +9,7 @@ GLOBAL _ps
 GLOBAL _nice
 GLOBAL _block
 GLOBAL _kill
+GLOBAL _yield
 section .text
 
 
@@ -130,6 +131,15 @@ _kill:
     push rbp 
     mov rbp,rsp
     mov rax,16
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
+_yield:
+    push rbp 
+    mov rbp,rsp
+    mov rax,19
     int 80h
     mov rsp,rbp
     pop rbp

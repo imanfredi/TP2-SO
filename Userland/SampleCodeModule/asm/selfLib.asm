@@ -9,6 +9,8 @@ GLOBAL initVisualEnvironment
 GLOBAL addNewProcess
 GLOBAL getSecondsElapsed
 GLOBAL getPid
+GLOBAL free2
+GLOBAL malloc2
 extern strlen
 
 getChar:
@@ -178,6 +180,27 @@ getPid:
     mov rsp,rbp
     pop rbp
     ret
+
+malloc2:
+    push rbp
+    mov rbp,rsp
+    mov rax,20
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
+free2:
+
+    push rbp
+    mov rbp,rsp
+    mov rax,21
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
+
 
 
 section .bss

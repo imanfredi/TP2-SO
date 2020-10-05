@@ -4,6 +4,7 @@
 #include <rtc.h>
 #include <lib.h>
 #include <adminScreen.h>
+#include <memoryManager.h>
 #include <scheduler.h>
 #include <time.h>
 
@@ -25,7 +26,10 @@ static uint64_t blockProcess(Register_t * registers);
 static uint64_t killProcess(Register_t * registers);
 static uint64_t getSeconds(Register_t * registers);
 static uint64_t getPid(Register_t * registers);
-static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen,&readMem,&time,&information,&temperature,&cpuModel,&getRegisters,&screenRequest,&startAppsVisual,&newProcess,&ps,&blockProcess,&nicePriority,&killProcess,&getSeconds,&getPid};
+static uint64_t yieldSyscall(Register_t * registers);
+static uint64_t mallocSyscall(Register_t * registers);
+static uint64_t freeSyscall(Register_t * registers);
+static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen,&readMem,&time,&information,&temperature,&cpuModel,&getRegisters,&screenRequest,&startAppsVisual,&newProcess,&ps,&blockProcess,&nicePriority,&killProcess,&getSeconds,&getPid,&yieldSyscall,&mallocSyscall,&freeSyscall};
 
 uint64_t systemCallDispatcher(Register_t *parameters)
 {
@@ -134,4 +138,18 @@ static uint64_t getPid(Register_t * registers){
 
 static uint64_t getSeconds(Register_t * registers){
     return seconds_elapsed();
+}
+
+static uint64_t yieldSyscall(Register_t * registers){
+    return yield();
+}
+static uint64_t mallocSyscall(Register_t * registers){
+    return (uint64_t)malloc2((unsigned int )registers->rdi);
+
+}
+
+static uint64_t freeSyscall(Register_t * registers){
+    free2((void *)registers->rdi);
+    return 0;
+
 }

@@ -66,5 +66,6 @@ uint64_t listProcess();
 uint64_t schedule(uint64_t rsp);
 uint64_t block(uint64_t pid);
 uint64_t getCurrentPid();
+uint64_t yield();
 
 #endif
