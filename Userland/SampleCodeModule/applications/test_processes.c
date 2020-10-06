@@ -91,7 +91,6 @@ int test_processes(int argc, char*argv[]){
          }
      } 
 
-     while(1);
    }
   return 0;
 }
