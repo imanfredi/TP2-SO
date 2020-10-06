@@ -117,7 +117,7 @@ uint64_t schedule(uint64_t rsp) {
         currentProcess->process.rsp = rsp;
 
         if (currentProcess->process.slotsLeft <= 0) {
-            enqueueProcess(currentProcess);
+                enqueueProcess(currentProcess);
             do {
                 currentProcess = dequeueProcess();
                 if (currentProcess->process.state == KILLED) {
@@ -196,6 +196,7 @@ uint64_t block(uint64_t pid) {
             return 0;
         }
     }
+    listProcess();
     return -1;
 }
 
@@ -278,11 +279,13 @@ uint64_t kill(uint64_t pid) {
     }
 
     processNode *node = findNode(pid);
-    if (node == NULL)
+    if (node != NULL){
+        node->process.state = KILLED;
+        return 0;
+    }
+        listProcess();
         return -1;
 
-    node->process.state = KILLED;
-    return 0;
 }
 
 static processNode *findNode(uint64_t pid) {
