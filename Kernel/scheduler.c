@@ -26,7 +26,7 @@ static void printProcessInfo(processNode *n);
 static processNode *findNode(uint64_t pid);
 static int dummyProcess(int argc, char *argv[]);
 static char **copyArgv(char **buff, char **argv, int argc);
-
+static void getNextReady();
 
 void initializeScheduler() {
     pidCounter = 0;
@@ -38,6 +38,7 @@ void initializeScheduler() {
     addNewProcess(&dummyProcess, 1, argv);
     dummy = dequeueProcess();
     processQueue->size = 0;
+    processQueue->ready = 0;
 }
 
 static int dummyProcess(int argc, char *argv[]) {
@@ -53,14 +54,15 @@ void finishScheduler() {
 
 uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[]) {
     processNode *node = (processNode *)malloc2(sizeof(processNode) + STACK_SIZE);
-
+    uint64_t ppid = currentProcess == NULL ? INIT_PROCESS : currentProcess->process.pid;
     if (node == NULL)
         return -1;
 
-    initPCB(node, argv[0], function, INIT_PROCESS);
+    initPCB(node, argv[0], function, ppid);
     argv = copyArgv((char **)((uint64_t)node + sizeof(processNode)), argv, argc);
     initStackFrame(function, argc, argv, node);
     enqueueProcess(node);
+    processQueue->ready++;
     return node->process.pid;
 }
 
@@ -104,39 +106,43 @@ void initPCB(processNode *node, char *name, int (*function)(int, char **), uint6
 /*Si es null, es kernel el que esta generando la interrupcion del hlt
 No debería encolar lo que tiene, solo sacar el proceso que esta en la cola
 Desencolar el primero, encolar el que viene. Hacer el swapeo de rsp. Actualizar rsp, guardarlo en su estructura*/
-
 uint64_t schedule(uint64_t rsp) {
     //encolar el que viene
-    if (currentProcess == NULL) {  //si es el primer proceso que se corre
-        if (!isEmpty()) {
+    if (currentProcess == NULL) {  //si no hay ningun proceso corriendo. Es la primera vez
+        if (!isEmpty())
             currentProcess = dequeueProcess();
-            currentProcess->process.slotsLeft = QUANTUM * currentProcess->process.priority;
-        }
+        else
+            currentProcess = dummy;
+        currentProcess->process.slotsLeft = QUANTUM * currentProcess->process.priority;
+
     } else {
         //switching context. Hay que quedarnos con las dos variables para actualizar los rsp
         currentProcess->process.rsp = rsp;
-
-        if (currentProcess->process.slotsLeft <= 0) {
-            enqueueProcess(currentProcess);
-            do {
-                currentProcess = dequeueProcess();
-                if (currentProcess->process.state == KILLED) {
-                    free2(currentProcess);
-                }
-
-            } while (currentProcess != NULL && currentProcess->process.state != READY);
-
-            if (currentProcess != NULL)
-                currentProcess->process.slotsLeft = QUANTUM * currentProcess->process.priority;
+        if (currentProcess->process.slotsLeft <= 0) {  //se me acabo el tiempo de correr o me mataron/bloquearon
+            if (processQueue->ready > 0)
+                getNextReady();
+            else //aca solo entro si no hay ninguno ready. Incluso el current no esta ready
+                currentProcess = dummy;
+            currentProcess->process.slotsLeft = QUANTUM * currentProcess->process.priority;
         }
     }
-    if (currentProcess == NULL)
-        currentProcess = dummy;
-    else {
-        currentProcess->process.slotsLeft--;
-    }
+
+    currentProcess->process.slotsLeft--;
 
     return currentProcess->process.rsp;
+
+}
+
+static void getNextReady() {
+    processNode *aux = currentProcess;
+    enqueueProcess(currentProcess);
+    do {
+        currentProcess = dequeueProcess();
+        if (currentProcess->process.state == KILLED)
+            free2(currentProcess);
+        else if (currentProcess->process.state == BLOCKED)
+            enqueueProcess(currentProcess);
+    } while (currentProcess != aux && currentProcess->process.state != READY);
 }
 
 uint64_t newPid() {
@@ -158,8 +164,6 @@ processNode *dequeueProcess() {
 
     return ans;
 }
-
-
 
 void enqueueProcess(processNode *process) {
     if (isEmpty())
@@ -185,22 +189,31 @@ uint64_t loop(void) {
 uint64_t block(uint64_t pid) {
     if (currentProcess->process.pid == pid) {
         currentProcess->process.state = BLOCKED;
+        currentProcess->process.slotsLeft = 0;
+        processQueue->ready--;
         callTimerTick();
+        return 0;
+
     } else {
         processNode *current = findNode(pid);
         if (current != NULL) {
-            if (current->process.state == BLOCKED)
+            if (current->process.state == BLOCKED) {
+                processQueue->ready++;
                 current->process.state = READY;
-            else if (current->process.state == READY)
+            } else if (current->process.state == READY) {
+                processQueue->ready--;
                 current->process.state = BLOCKED;
+                current->process.slotsLeft = 0;
+            }
             return 0;
         }
     }
+
     return -1;
 }
 
-uint64_t yield(){
-    currentProcess->process.slotsLeft=0;
+uint64_t yield() {
+    currentProcess->process.slotsLeft = 0;
     callTimerTick();
     return 0;
 }
@@ -227,7 +240,7 @@ uint64_t nice(uint64_t pid, uint64_t priority) {
 
 uint64_t listProcess() {
     processNode *n = processQueue->first;
-    char *message = "NAME   ID:   PRIORITY:   SP:   BP:   foreground:   ";
+    char *message = "NAME     PID:   PPID PRIOR:      RSP:            RBP:       foreground:  state:";
     printStringScreen((uint8_t *)message, strlen((uint8_t *)message), BLACK_WHITE);
     newLineScreen();
 
@@ -247,11 +260,15 @@ static void printProcessInfo(processNode *n) {
 
     printStringScreen((uint8_t *)n->process.name, (uint64_t)strlen((uint8_t *)n->process.name), 0x07);
 
-    printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "), 0x07);
+    printStringScreen((uint8_t *)"      ", strlen((uint8_t *)"      "), 0x07);
 
     len = uintToBase(n->process.pid, (uint8_t *)number, 10);
     printStringScreen(number, len, 0x07);
     printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "), 0x07);
+
+    len = uintToBase(n->process.ppid, (uint8_t *)number, 10);
+    printStringScreen(number, len, 0x07);
+    printStringScreen((uint8_t *)"     ", strlen((uint8_t *)"     "), 0x07);
 
     len = uintToBase(n->process.priority, number, 10);
     printStringScreen(number, len, 0x07);
@@ -264,6 +281,15 @@ static void printProcessInfo(processNode *n) {
     len = uintToBaseWithLength(n->process.rbp, registers, SIZE_REGISTER, SIZE_REGISTER + 1);
     printStringScreen(registers, SIZE_REGISTER + 1, 0x07);
     printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "), 0x07);
+
+    len = uintToBase(n->process.priority, number, 10);
+    printStringScreen(number, len, 0x07);
+    printStringScreen((uint8_t *)"      ", strlen((uint8_t *)"      "), 0x07);
+
+    len = uintToBase(n->process.state, (uint8_t *)number, 10);
+    printStringScreen(number, len, 0x07);
+
+
 }
 
 void loader2(int argc, char *argv[], int (*function)(int, char **)) {
@@ -274,14 +300,19 @@ void loader2(int argc, char *argv[], int (*function)(int, char **)) {
 uint64_t kill(uint64_t pid) {
     if (pid == currentProcess->process.pid) {
         currentProcess->process.state = KILLED;
+        currentProcess->process.slotsLeft = 0;
+        processQueue->ready--;
         callTimerTick();
+        return 0;
     }
 
     processNode *node = findNode(pid);
     if (node == NULL)
         return -1;
 
+    processQueue->ready--;
     node->process.state = KILLED;
+    node->process.slotsLeft = 0;
     return 0;
 }
 

@@ -54,7 +54,9 @@ typedef struct {
     processNode *first;
     processNode *last;
     uint64_t size;
+    uint64_t ready;
 } processQueue_t;
+
 void initializeScheduler();
 uint64_t addNewProcess(int (*function)(int, char **), int argc, char **argv);
 uint64_t kill(uint64_t pid);

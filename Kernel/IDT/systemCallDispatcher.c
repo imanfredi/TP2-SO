@@ -29,7 +29,10 @@ static uint64_t getPid(Register_t * registers);
 static uint64_t yieldSyscall(Register_t * registers);
 static uint64_t mallocSyscall(Register_t * registers);
 static uint64_t freeSyscall(Register_t * registers);
-static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen,&readMem,&time,&information,&temperature,&cpuModel,&getRegisters,&screenRequest,&startAppsVisual,&newProcess,&ps,&blockProcess,&nicePriority,&killProcess,&getSeconds,&getPid,&yieldSyscall,&mallocSyscall,&freeSyscall};
+static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen,&readMem,&time,&information,
+                                                        &temperature,&cpuModel,&getRegisters,&screenRequest,&startAppsVisual,
+                                                        &newProcess,&ps,&blockProcess,&nicePriority,&killProcess,&getSeconds,
+                                                        &getPid,&yieldSyscall,&mallocSyscall,&freeSyscall};
 
 uint64_t systemCallDispatcher(Register_t *parameters)
 {
