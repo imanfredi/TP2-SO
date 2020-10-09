@@ -16,7 +16,7 @@ typedef struct P_rq{
   enum State state;
 }p_rq;
 
-int test_processes(int argc, char*argv[]){
+int test_processes(){
   p_rq p_rqs[MAX_PROCESSES];
   uint8_t rq;
   uint8_t alive = 0;

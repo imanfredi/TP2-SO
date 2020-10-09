@@ -1,7 +1,7 @@
 #ifndef _SELF_LIB_H
 #define _SELF_LIB_H
 
-#define FOREGROUND 0 
+#define FOREGROUND 0
 #define BACKGROUND 1
 
 #include <stdint.h>

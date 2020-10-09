@@ -14,6 +14,8 @@
 #define CLEAR_SCREEN_CODE 252
 #define COMMANDS 17
 #define SIZE 25
+#define FALSE 0
+#define TRUE 1
 #define DESC_SIZE 100
 #define ARG_MAX 4
 #define ARG_SIZE 18
@@ -26,7 +28,7 @@
 typedef struct
 {
     uint8_t name[SIZE];
-    void (*function)();
+    int (*function)(int argc,char *argv[]);
     uint8_t description[DESC_SIZE];
     uint8_t parameters;
 } commandsT;

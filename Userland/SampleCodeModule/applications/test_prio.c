@@ -23,7 +23,7 @@ void bussy_wait(uint64_t n){
 
 #define TOTAL_PROCESSES 3
 
-int test_prio(int argc, char*argv[]){
+int test_prio(){
   uint64_t pids[TOTAL_PROCESSES];
   uint64_t i;
 

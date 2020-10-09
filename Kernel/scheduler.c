@@ -53,6 +53,7 @@ void finishScheduler() {
 }
 
 uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[], uint64_t execution) {
+    
     if (currentProcess != NULL) {
         //si quiere crear un proceso en foreground y esta en background no se le permite
         if (execution == FOREGROUND && currentProcess->process.execution == BACKGROUND) {
@@ -73,9 +74,10 @@ uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[], ui
     processQueue->ready++;
 
     //si quieren crear en foregorund bloqueo al proceso creador dejando que corra el nuevo proceso en foreground
-    if (execution == FOREGROUND) {
+    if (execution == FOREGROUND && currentProcess != NULL && currentProcess != dummy) {
         block(currentProcess->process.pid);
     }
+
 
     return node->process.pid;
 }
@@ -315,15 +317,14 @@ uint64_t kill(uint64_t pid) {
         currentProcess->process.state = KILLED;
         currentProcess->process.slotsLeft = 0;
         processQueue->ready--;
-        if(currentProcess->process.execution == FOREGROUND){
+        if(currentProcess->process.execution == FOREGROUND)
             block(currentProcess->process.ppid);
-        }
         callTimerTick();
         return 0;
     }
 
     processNode *node = findNode(pid);
-    if (node == NULL) {
+    if (node == NULL)
         return -1;
 
     if(node->process.execution == FOREGROUND){
