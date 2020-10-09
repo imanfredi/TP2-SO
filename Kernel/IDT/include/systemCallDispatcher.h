@@ -9,7 +9,7 @@
 /* Estructura de registros */
 typedef struct
 {
-    uint64_t rax, rdi, rsi, rdx, r8, r9, r10;
+    uint64_t rax, rdi, rsi, rdx, rcx,r8, r9;
 
 } Register_t;
 

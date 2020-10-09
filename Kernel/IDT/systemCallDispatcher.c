@@ -115,7 +115,7 @@ static uint64_t screenRequest(Register_t * registers){
 }
 
 static uint64_t newProcess(Register_t * registers){
-    return addNewProcess((int (*)(int, char **))registers->rdi,(int)registers->rsi,(char**)registers->rdx);
+    return addNewProcess((int (*)(int, char **))registers->rdi,(int)registers->rsi,(char**)registers->rdx,registers->rcx);
 }
 
 static uint64_t ps(Register_t * registers){

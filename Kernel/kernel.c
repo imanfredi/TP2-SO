@@ -59,7 +59,7 @@ int main(){
 	initScreen();
 	initializeScheduler();
 	char *argv[]={"./sample"};
-	addNewProcess(sampleCodeModuleAddress,1,argv);
+	addNewProcess(sampleCodeModuleAddress,1,argv,FOREGROUND);
     initExceptions(sampleCodeModuleAddress,getInitialSP());
 	_hlt();
 	return 0;

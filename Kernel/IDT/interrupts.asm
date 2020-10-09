@@ -217,21 +217,15 @@ _systemCallHandler:
 		mov [register+8],rdi
 		mov [register+16],rsi
 		mov [register+24],rdx
-		mov [register+32],r8
-		mov [register+40],r9
-		mov [register+48],r10
+		mov [register+32],rcx
+		mov [register+40],r8
+		mov [register+48],r9
 
 		mov rdi,register
 		
 		call systemCallDispatcher
 		
-		;cmp ,12
-
-		;mov rsp,rax
-		;popState
-		;iretq
-
-		
+	
 		popStateNoRax
 
 		mov rsp,rbp
@@ -248,7 +242,7 @@ SECTION .bss
 			rrdi resq 1
 			rrsi resq 1
 			rrdx resq 1
+			rrcx resq 1
 			rr8 resq 1
 			rr9 resq 1
-			rr10 resq 1
 SECTION .data

@@ -15,7 +15,7 @@ static processNode *currentProcess;
 static processQueue_t *processQueue;
 static processNode *dummy;
 
-static void initPCB(processNode *node, char *name, int (*function)(int, char **), uint64_t ppid);
+static void initPCB(processNode *node, char *name, int (*function)(int, char **), uint64_t ppid, uint64_t execution);
 static void initStackFrame(int (*function)(int, char **), int argc, char **argv, processNode *node);
 static void loader2(int argc, char *argv[], int (*function)(int, char **));
 static processNode *dequeueProcess();
@@ -35,7 +35,7 @@ void initializeScheduler() {
     processQueue->last = NULL;
     currentProcess = NULL;
     char *argv[] = {"dummyProcess"};
-    addNewProcess(&dummyProcess, 1, argv);
+    addNewProcess(&dummyProcess, 1, argv, BACKGROUND);
     dummy = dequeueProcess();
     processQueue->size = 0;
     processQueue->ready = 0;
@@ -52,17 +52,31 @@ void finishScheduler() {
     free2(processQueue);
 }
 
-uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[]) {
+uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[], uint64_t execution) {
+    if (currentProcess != NULL) {
+        //si quiere crear un proceso en foreground y esta en background no se le permite
+        if (execution == FOREGROUND && currentProcess->process.execution == BACKGROUND) {
+            return -1;
+        }
+    }
+
     processNode *node = (processNode *)malloc2(sizeof(processNode) + STACK_SIZE);
     uint64_t ppid = currentProcess == NULL ? INIT_PROCESS : currentProcess->process.pid;
+
     if (node == NULL)
         return -1;
 
-    initPCB(node, argv[0], function, ppid);
+    initPCB(node, argv[0], function, ppid, execution);
     argv = copyArgv((char **)((uint64_t)node + sizeof(processNode)), argv, argc);
     initStackFrame(function, argc, argv, node);
     enqueueProcess(node);
     processQueue->ready++;
+
+    //si quieren crear en foregorund bloqueo al proceso creador dejando que corra el nuevo proceso en foreground
+    if (execution == FOREGROUND) {
+        block(currentProcess->process.pid);
+    }
+
     return node->process.pid;
 }
 
@@ -91,7 +105,7 @@ void initStackFrame(int (*function)(int, char **), int argc, char **argv, proces
     stackFrame->rsp = (uint64_t)node->process.rsp;
 }
 
-void initPCB(processNode *node, char *name, int (*function)(int, char **), uint64_t ppid) {
+void initPCB(processNode *node, char *name, int (*function)(int, char **), uint64_t ppid, uint64_t execution) {
     pcb_t *pcb = &(node->process);
     pcb->pid = newPid();
     pcb->ppid = ppid;
@@ -102,6 +116,7 @@ void initPCB(processNode *node, char *name, int (*function)(int, char **), uint6
     pcb->entryPoint = function;
     pcb->priority = INITIAL_PRIORITY;
     pcb->slotsLeft = INITIAL_PRIORITY * QUANTUM;
+    pcb->execution = execution;
 }
 /*Si es null, es kernel el que esta generando la interrupcion del hlt
 No debería encolar lo que tiene, solo sacar el proceso que esta en la cola
@@ -121,7 +136,7 @@ uint64_t schedule(uint64_t rsp) {
         if (currentProcess->process.slotsLeft <= 0) {  //se me acabo el tiempo de correr o me mataron/bloquearon
             if (processQueue->ready > 0)
                 getNextReady();
-            else //aca solo entro si no hay ninguno ready. Incluso el current no esta ready
+            else  //aca solo entro si no hay ninguno ready. Incluso el current no esta ready
                 currentProcess = dummy;
             currentProcess->process.slotsLeft = QUANTUM * currentProcess->process.priority;
         }
@@ -130,7 +145,6 @@ uint64_t schedule(uint64_t rsp) {
     currentProcess->process.slotsLeft--;
 
     return currentProcess->process.rsp;
-
 }
 
 static void getNextReady() {
@@ -187,25 +201,27 @@ uint64_t loop(void) {
 }
 
 uint64_t block(uint64_t pid) {
-    if (currentProcess->process.pid == pid) {
-        currentProcess->process.state = BLOCKED;
-        currentProcess->process.slotsLeft = 0;
-        processQueue->ready--;
-        callTimerTick();
-        return 0;
-
-    } else {
-        processNode *current = findNode(pid);
-        if (current != NULL) {
-            if (current->process.state == BLOCKED) {
-                processQueue->ready++;
-                current->process.state = READY;
-            } else if (current->process.state == READY) {
-                processQueue->ready--;
-                current->process.state = BLOCKED;
-                current->process.slotsLeft = 0;
-            }
+    if (pid > INIT_PROCESS) {
+        if (currentProcess->process.pid == pid) {
+            currentProcess->process.state = BLOCKED;
+            currentProcess->process.slotsLeft = 0;
+            processQueue->ready--;
+            callTimerTick();
             return 0;
+
+        } else {
+            processNode *current = findNode(pid);
+            if (current != NULL) {
+                if (current->process.state == BLOCKED) {
+                    processQueue->ready++;
+                    current->process.state = READY;
+                } else if (current->process.state == READY) {
+                    processQueue->ready--;
+                    current->process.state = BLOCKED;
+                    current->process.slotsLeft = 0;
+                }
+                return 0;
+            }
         }
     }
     return -1;
@@ -287,8 +303,6 @@ static void printProcessInfo(processNode *n) {
 
     len = uintToBase(n->process.state, (uint8_t *)number, 10);
     printStringScreen(number, len, 0x07);
-
-
 }
 
 void loader2(int argc, char *argv[], int (*function)(int, char **)) {
@@ -301,18 +315,20 @@ uint64_t kill(uint64_t pid) {
         currentProcess->process.state = KILLED;
         currentProcess->process.slotsLeft = 0;
         processQueue->ready--;
+        if(currentProcess->process.execution == FOREGROUND){
+            block(currentProcess->process.ppid);
+        }
         callTimerTick();
         return 0;
     }
 
     processNode *node = findNode(pid);
-    if (node != NULL){
-        node->process.state = KILLED;
-        return 0;
-    }
-        listProcess();
+    if (node == NULL) {
         return -1;
 
+    if(node->process.execution == FOREGROUND){
+        block(node->process.ppid);
+    }
     processQueue->ready--;
     node->process.state = KILLED;
     node->process.slotsLeft = 0;

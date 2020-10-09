@@ -4,7 +4,7 @@
 
 int main() {
     char *argv[] = {"./shell"};
-    addNewProcess(&runShell, 1, argv);
+    addNewProcess(&runShell, 1, argv,FOREGROUND);
 
     return 0;
 }

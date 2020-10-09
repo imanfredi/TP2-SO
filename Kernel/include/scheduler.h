@@ -4,6 +4,8 @@
 #define STACK_SIZE 1024 * 4
 #define INITIAL_PRIORITY 1
 #define INIT_PROCESS 1
+#define FOREGROUND 0
+#define BACKGROUND 1
 #define SIZE_REGISTER 16
 #define QUANTUM 1
 #define MAX_PRIORITY 10
@@ -42,6 +44,7 @@ typedef struct {
     void *entryPoint;
     uint64_t priority;
     uint64_t slotsLeft;
+    uint64_t execution; //se guarda si corre en foreground o background
 } pcb_t;
 
 
@@ -58,7 +61,7 @@ typedef struct {
 } processQueue_t;
 
 void initializeScheduler();
-uint64_t addNewProcess(int (*function)(int, char **), int argc, char **argv);
+uint64_t addNewProcess(int (*function)(int, char **), int argc, char **argv, uint64_t execution);
 uint64_t kill(uint64_t pid);
 uint64_t loop(void);
 uint64_t nice(uint64_t pid, uint64_t priority);

@@ -29,7 +29,7 @@ int test_prio(int argc, char*argv[]){
 
    for(i = 0; i < TOTAL_PROCESSES; i++){
      char * argAux[]={"endless_loop"};
-     pids[i] = addNewProcess(&endless_loop2,1,argAux);
+     pids[i] = addNewProcess(&endless_loop2,1,argAux,BACKGROUND);
    }
 
    bussy_wait(WAIT);
