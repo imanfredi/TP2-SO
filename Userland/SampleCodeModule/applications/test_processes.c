@@ -9,7 +9,7 @@ int endless_loop(int argc, char*argv[]){
 
 #define MAX_PROCESSES 10 //Should be around 80% of the the processes handled by the kernel
 
-enum State {ERROR, RUNNING, BLOCKED, KILLED};
+enum State {RUNNING=0, BLOCKED, KILLED, ERROR};
 
 typedef struct P_rq{
   uint32_t pid;
@@ -23,7 +23,6 @@ int test_processes(int argc, char*argv[]){
   uint8_t action;
 
   while (1){
-
      // Create MAX_PROCESSES processes
     for(rq = 0; rq < MAX_PROCESSES; rq++){
       char * argAux[] =  {"endless_loop"}; 
@@ -42,12 +41,12 @@ int test_processes(int argc, char*argv[]){
 
        for(rq = 0; rq < MAX_PROCESSES; rq++){
          action = GetUniform(2) % 2; 
-
+          
          switch(action){
            case 0:
              if (p_rqs[rq].state == RUNNING || p_rqs[rq].state == BLOCKED){
                if (_kill(p_rqs[rq].pid) == -1){          // TODO: Port this as required
-                 printf("Error killing process\n");        // TODO: Port this as required
+                 printf("Error killing process %d\n",p_rqs[rq].pid);        // TODO: Port this as required
                  return 1;
                }
                p_rqs[rq].state = KILLED; 
@@ -58,7 +57,7 @@ int test_processes(int argc, char*argv[]){
            case 1:
              if (p_rqs[rq].state == RUNNING){
                if(_block(p_rqs[rq].pid) == -1){          // TODO: Port this as required
-                 printf("Error blocking process\n");       // TODO: Port this as required
+                 printf("Error blocking process %d \n",p_rqs[rq].pid);       // TODO: Port this as required
                  return 1;
                }
                p_rqs[rq].state = BLOCKED; 
@@ -71,7 +70,7 @@ int test_processes(int argc, char*argv[]){
        for(rq = 0; rq < MAX_PROCESSES; rq++)
          if (p_rqs[rq].state == BLOCKED && GetUniform(2) % 2){
            if(_block(p_rqs[rq].pid) == -1){            // TODO: Port this as required
-             printf("Error unblocking process\n");         // TODO: Port this as required
+             printf("Error unblocking process %d \n",p_rqs[rq].pid);         // TODO: Port this as required
              return 1;
            }
            p_rqs[rq].state = RUNNING; 

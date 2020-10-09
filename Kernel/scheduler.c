@@ -208,7 +208,6 @@ uint64_t block(uint64_t pid) {
             return 0;
         }
     }
-
     return -1;
 }
 
@@ -307,7 +306,11 @@ uint64_t kill(uint64_t pid) {
     }
 
     processNode *node = findNode(pid);
-    if (node == NULL)
+    if (node != NULL){
+        node->process.state = KILLED;
+        return 0;
+    }
+        listProcess();
         return -1;
 
     processQueue->ready--;
