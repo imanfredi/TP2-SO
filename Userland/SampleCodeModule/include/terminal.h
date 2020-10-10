@@ -6,9 +6,8 @@
 #include <selfLib.h>
 #include <stdint.h>
 #include <stringFunctions.h>
+#include <test_util.h>
 #include <utils.h>
-#include<test_util.h>
-
 
 #define BUFFERSIZE 80
 #define CLEAR_SCREEN_CODE 252
@@ -28,12 +27,11 @@
 typedef struct
 {
     uint8_t name[SIZE];
-    int (*function)(int argc,char *argv[]);
+    int (*function)(int argc, char *argv[]);
     uint8_t description[DESC_SIZE];
     uint8_t parameters;
 } commandsT;
 
-
-int runShell(int argc, char * argv[]);
+int runShell(int argc, char *argv[]);
 
 #endif

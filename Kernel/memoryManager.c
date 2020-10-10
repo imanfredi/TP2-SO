@@ -31,12 +31,12 @@ void initializeMemoryManager(char *heapInit, unsigned long size) {
     freep->s.next = NULL;
 }
 
-void * malloc2(unsigned nbytes) {
+void *malloc2(unsigned nbytes) {
     Header *curr, *prevp;
     unsigned nunits;
-   
-    if(nbytes == 0)
-        return (void *)NULL; 
+
+    if (nbytes == 0)
+        return (void *)NULL;
 
     nunits = (nbytes + sizeof(Header) - 1) / sizeof(Header) + 1;
 
@@ -59,39 +59,34 @@ void * malloc2(unsigned nbytes) {
     return (void *)NULL;
 }
 
-
 void free2(void *ptr) {
     Header *curr, *prev, *aux;
     aux = (Header *)(ptr);
     aux--;
 
-    if(aux == NULL || aux<(Header*)heapBase || aux>= (Header*)heapBase+heapSize){
+    if (aux == NULL || aux < (Header *)heapBase || aux >= (Header *)heapBase + heapSize) {
         return;
     }
 
-
     curr = freep;
-        while (curr != NULL && curr < aux) {/* recorria nodos hasta encontrar el anterior libre*/
-            prev = curr;
-            curr = curr->s.next;
+    while (curr != NULL && curr < aux) { /* recorria nodos hasta encontrar el anterior libre*/
+        prev = curr;
+        curr = curr->s.next;
+    }
+    if (curr != NULL && (aux + aux->s.size == curr)) { /*Con esto veo si me puedo unir con el de adelante*/
+        aux->s.size += curr->s.size;
+        aux->s.next = curr->s.next;
+    } else /*Si no me puedo unir hago simplemente un cambio de puntero*/
+        aux->s.next = curr;
+
+    if (curr == freep) { /*Con esto veo si estoy antes que el primero libre*/
+        freep = aux;
+    } else {
+        if (prev + prev->s.size == aux) { /*Uno los bloques si tengo uno libre atrás*/
+            prev->s.size += aux->s.size;
+            prev->s.next = aux->s.next;
+        } else {
+            prev->s.next = aux; /*Si no hago que el de atrás me apunte*/
         }
-        if(curr != NULL && (aux + aux->s.size == curr)){ /*Con esto veo si me puedo unir con el de adelante*/
-            aux->s.size += curr-> s.size;
-            aux->s.next = curr->s.next; 
-        }
-        else                                /*Si no me puedo unir hago simplemente un cambio de puntero*/
-            aux->s.next = curr;
-        
-        if(curr == freep){ /*Con esto veo si estoy antes que el primero libre*/
-            freep = aux;
-        }
-        else{
-            if (prev + prev->s.size == aux) { /*Uno los bloques si tengo uno libre atrás*/
-                prev->s.size += aux->s.size;
-                prev->s.next = aux->s.next;
-            }
-            else {
-                prev->s.next = aux; /*Si no hago que el de atrás me apunte*/
-            }
-        }       
+    }
 }

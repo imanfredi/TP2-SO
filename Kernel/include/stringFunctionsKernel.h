@@ -5,7 +5,7 @@
 
 int strlen(const uint8_t *s);
 uint8_t *strcpy(uint8_t dest[], const uint8_t source[]);
-int strcmp(const uint8_t*s1,const uint8_t *s2);
+int strcmp(const uint8_t *s1, const uint8_t *s2);
 int strncmp(const uint8_t *s1, const uint8_t *s2, int n);
 void ftoa(double value, uint8_t *str, uint8_t precision);
 void itoa(int value, uint8_t *str, int base);

@@ -16,7 +16,7 @@ static uint8_t isBackground();
 static void memToStr(uint8_t *mem, uint8_t *memStr, uint8_t bytesToConvert);
 static int loopProcess(int seconds);
 
-static int time(int argc,char *argv[]);
+static int time(int argc, char *argv[]);
 static int printmem(int argc, char *argv[]);
 static int inforeg(int argc, char *argv[]);
 static int information(int argc, char *argv[]);
@@ -34,7 +34,6 @@ static int runTestPrio(int argc, char *argv[]);
 static int runTestProcesses(int argc, char *argv[]);
 static int runTestSync(int argc, char *argv[]);
 static int loop(int argc, char *argv[]);
-
 
 static commandsT commandVec[COMMANDS] = {
     {"help", &help, "Lista la informacion de los comandos disponibles.", 1},
@@ -99,8 +98,8 @@ int runShell(int argc, char *argv[]) {
     return 0;
 }
 
-static int help(int argc, char *argv[]){
-     for(int i = 0; i < COMMANDS; i++) {
+static int help(int argc, char *argv[]) {
+    for (int i = 0; i < COMMANDS; i++) {
         printf(" %c%s: %s\n", BULLET_POINT, commandVec[i].name, commandVec[i].description);
     }
     return 0;
@@ -116,19 +115,20 @@ static void readCommand(uint8_t *buffer, uint8_t *buffDim) {
             index++;
         }
         if (index < COMMANDS) {
-            if((fg = isBackground()) && commandVec[index].parameters == argDim - 1)
-                addNewProcess(commandVec[index].function, commandVec[index].parameters, (char**)arguments, fg);
-            
-            else if(commandVec[index].parameters == argDim)
-                addNewProcess(commandVec[index].function,commandVec[index].parameters,(char**)arguments,fg);
-            
+            if ((fg = isBackground()) && commandVec[index].parameters == argDim - 1) {
+                addNewProcess(commandVec[index].function, commandVec[index].parameters, (char **)arguments, fg);
+            }
+
+            else if (commandVec[index].parameters == argDim) {
+                addNewProcess(commandVec[index].function, commandVec[index].parameters, (char **)arguments, fg);
+            }
+
             else
                 printString((uint8_t *)"Numero erroneo de argumentos\n");
 
- 
-        } else 
+        } else
             printString((uint8_t *)"No existe el comando\n");
-        
+
         cleanArgs();
     }
     printString((uint8_t *)SHELL_MESSAGE);
@@ -137,10 +137,10 @@ static void readCommand(uint8_t *buffer, uint8_t *buffDim) {
 
 static uint8_t isBackground() {
     for (int i = 0; i < argDim; i++) {
-        if (strcmp(arguments[i], (uint8_t *)"&"))
+        if (strcmp(arguments[i], (uint8_t *)"&") == 0) {
             return BACKGROUND;
+        }
     }
-
     return FOREGROUND;
 }
 
@@ -170,22 +170,21 @@ static void cleanArgs() {
     argDim = 0;
 }
 
-int time(int argc,char *argv[]) {
+int time(int argc, char *argv[]) {
     uint8_t totalHour[9];
     _time(totalHour);
     printf(" %cHora actual: %s\n", BULLET_POINT, totalHour);
     return 0;
 }
 
-
-static int printmem(int argc, char *argv[]){
-    if(argc < 2){
+static int printmem(int argc, char *argv[]) {
+    if (argc < 2) {
         return -1;
     }
 
     printString((uint8_t *)"Volcado de memoria de 32 bytes: \n");
-    char * dir = argv[1];
-    if(isHexaDir(dir)) {
+    char *dir = argv[1];
+    if (isHexaDir(dir)) {
         uint8_t *address = (uint8_t *)stringHexaToNumber((uint8_t *)dir);
         uint8_t mem[TOREAD] = {0};
         uint8_t memStr[TOREAD * 2 + 1];
@@ -225,7 +224,7 @@ static void memToStr(uint8_t *mem, uint8_t *memStr, uint8_t bytesToConvert) {
     memStr[j] = 0;
 }
 
-static int inforeg(int argc, char *argv[]){
+static int inforeg(int argc, char *argv[]) {
     printString((uint8_t *)"Impresion de registros: \n");
     uint8_t number[SIZE_OF_REGISTER + 1];
     uint64_t *registerValues = _inforeg();
@@ -237,13 +236,15 @@ static int inforeg(int argc, char *argv[]){
 }
 
 static int ps(int argc, char *argv[]) {
+    putChar('\n');
     _ps();
     putChar('\n');
+
     return 0;
 }
 
-static int loop(int argc, char*argv[]) {
-    int seconds=atoi((uint8_t*)argv[1]);
+static int loop(int argc, char *argv[]) {
+    int seconds = atoi((uint8_t *)argv[1]);
     if (seconds < 0) {
         return -1;
     }
@@ -263,27 +264,25 @@ static int loopProcess(int seconds) {
 static void sleep(int seconds) {
     int totalTime = getSecondsElapsed() + seconds;
 
-    while (getSecondsElapsed() <= totalTime);
+    while (getSecondsElapsed() <= totalTime)
+        ;
 }
 
 static int nice(int argc, char *argv[]) {
-    
-    _nice(atoi((uint8_t*)argv[1]), atoi((uint8_t*)argv[2]));
+    _nice(atoi((uint8_t *)argv[1]), atoi((uint8_t *)argv[2]));
     return 0;
 }
 
 static int block(int argc, char *argv[]) {
-    
-    _block(atoi((uint8_t*)argv[1]));
+    _block(atoi((uint8_t *)argv[1]));
     return 0;
-
 }
 
 static int kill(int argc, char *argv[]) {
-    if(argc < 2)
+    if (argc < 2)
         return -1;
 
-    _kill(atoi((uint8_t*)argv[1]));
+    _kill(atoi((uint8_t *)argv[1]));
     return 0;
 }
 
@@ -297,7 +296,6 @@ static int DivideByZeroException(int argc, char *argv[]) {
 static int InvalidOpcodeException(int argc, char *argv[]) {
     _invalidOpcodeException();
     return 0;
-
 }
 
 static int information(int argc, char *argv[]) {
@@ -313,7 +311,6 @@ static int information(int argc, char *argv[]) {
     uintToBase(fam, buff1, 10);
     printf(" %cFamily ID: %s\n", BULLET_POINT, buff1);
     return 0;
-
 }
 
 static int temperature(int argc, char *argv[]) {
@@ -322,19 +319,16 @@ static int temperature(int argc, char *argv[]) {
     uintToBase(temp, str, 10);
     printf(" %cTemperatura del CPU: %s\n", BULLET_POINT, str);
     return 0;
-
 }
 
 static int runTestProcesses(int argc, char *argv[]) {
     test_processes();
     return 0;
-
 }
 
 static int runTestPrio(int argc, char *argv[]) {
     test_prio();
     return 0;
-
 }
 
 static int runTestMM(int argc, char *argv[]) {
@@ -345,5 +339,4 @@ static int runTestMM(int argc, char *argv[]) {
 static int runTestSync(int argc, char *argv[]) {
     //test_sync();
     return 0;
-
 }

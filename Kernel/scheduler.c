@@ -53,7 +53,6 @@ void finishScheduler() {
 }
 
 uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[], uint64_t execution) {
-    
     if (currentProcess != NULL) {
         //si quiere crear un proceso en foreground y esta en background no se le permite
         if (execution == FOREGROUND && currentProcess->process.execution == BACKGROUND) {
@@ -67,8 +66,8 @@ uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[], ui
     if (node == NULL)
         return -1;
 
-    initPCB(node, argv[0], function, ppid, execution);
     argv = copyArgv((char **)((uint64_t)node + sizeof(processNode)), argv, argc);
+    initPCB(node, argv[0], function, ppid, execution);
     initStackFrame(function, argc, argv, node);
     enqueueProcess(node);
     processQueue->ready++;
@@ -77,7 +76,6 @@ uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[], ui
     if (execution == FOREGROUND && currentProcess != NULL && currentProcess != dummy) {
         block(currentProcess->process.pid);
     }
-
 
     return node->process.pid;
 }
@@ -136,10 +134,13 @@ uint64_t schedule(uint64_t rsp) {
         //switching context. Hay que quedarnos con las dos variables para actualizar los rsp
         currentProcess->process.rsp = rsp;
         if (currentProcess->process.slotsLeft <= 0) {  //se me acabo el tiempo de correr o me mataron/bloquearon
+            if (currentProcess != dummy)
+                enqueueProcess(currentProcess);
             if (processQueue->ready > 0)
                 getNextReady();
-            else  //aca solo entro si no hay ninguno ready. Incluso el current no esta ready
+            else {
                 currentProcess = dummy;
+            }  //aca solo entro si no hay ninguno ready. Incluso el current no esta ready
             currentProcess->process.slotsLeft = QUANTUM * currentProcess->process.priority;
         }
     }
@@ -151,7 +152,6 @@ uint64_t schedule(uint64_t rsp) {
 
 static void getNextReady() {
     processNode *aux = currentProcess;
-    enqueueProcess(currentProcess);
     do {
         currentProcess = dequeueProcess();
         if (currentProcess->process.state == KILLED)
@@ -196,37 +196,6 @@ void enqueueProcess(processNode *process) {
 
 static int isEmpty() {
     return processQueue->size == 0;
-}
-
-uint64_t loop(void) {
-    return 0;
-}
-
-uint64_t block(uint64_t pid) {
-    if (pid > INIT_PROCESS) {
-        if (currentProcess->process.pid == pid) {
-            currentProcess->process.state = BLOCKED;
-            currentProcess->process.slotsLeft = 0;
-            processQueue->ready--;
-            callTimerTick();
-            return 0;
-
-        } else {
-            processNode *current = findNode(pid);
-            if (current != NULL) {
-                if (current->process.state == BLOCKED) {
-                    processQueue->ready++;
-                    current->process.state = READY;
-                } else if (current->process.state == READY) {
-                    processQueue->ready--;
-                    current->process.state = BLOCKED;
-                    current->process.slotsLeft = 0;
-                }
-                return 0;
-            }
-        }
-    }
-    return -1;
 }
 
 uint64_t yield() {
@@ -299,7 +268,7 @@ static void printProcessInfo(processNode *n) {
     printStringScreen(registers, SIZE_REGISTER + 1, 0x07);
     printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "), 0x07);
 
-    len = uintToBase(n->process.priority, number, 10);
+    len = uintToBase(n->process.execution, number, 10);
     printStringScreen(number, len, 0x07);
     printStringScreen((uint8_t *)"      ", strlen((uint8_t *)"      "), 0x07);
 
@@ -312,12 +281,39 @@ void loader2(int argc, char *argv[], int (*function)(int, char **)) {
     kill(currentProcess->process.pid);
 }
 
+uint64_t block(uint64_t pid) {
+    if (pid > INIT_PROCESS) {
+        if (currentProcess->process.pid == pid) {
+            currentProcess->process.state = BLOCKED;
+            currentProcess->process.slotsLeft = 0;
+            processQueue->ready--;
+            callTimerTick();
+            return 0;
+
+        } else {
+            processNode *current = findNode(pid);
+            if (current != NULL) {
+                if (current->process.state == BLOCKED) {
+                    processQueue->ready++;
+                    current->process.state = READY;
+                } else if (current->process.state == READY) {
+                    processQueue->ready--;
+                    current->process.state = BLOCKED;
+                    current->process.slotsLeft = 0;
+                }
+                return 0;
+            }
+        }
+    }
+    return -1;
+}
+
 uint64_t kill(uint64_t pid) {
     if (pid == currentProcess->process.pid) {
         currentProcess->process.state = KILLED;
         currentProcess->process.slotsLeft = 0;
         processQueue->ready--;
-        if(currentProcess->process.execution == FOREGROUND)
+        if (currentProcess->process.execution == FOREGROUND)
             block(currentProcess->process.ppid);
         callTimerTick();
         return 0;
@@ -327,10 +323,13 @@ uint64_t kill(uint64_t pid) {
     if (node == NULL)
         return -1;
 
-    if(node->process.execution == FOREGROUND){
-        block(node->process.ppid);
+    if (node->process.execution == FOREGROUND) {
+        block(node->process.ppid);  //desbloqueo a mi padre
     }
-    processQueue->ready--;
+
+    if (node->process.state == READY) {
+        processQueue->ready--;
+    }
     node->process.state = KILLED;
     node->process.slotsLeft = 0;
     return 0;

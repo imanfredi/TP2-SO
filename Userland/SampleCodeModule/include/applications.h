@@ -7,15 +7,15 @@
 
 #define MAXAPPLICATIONS 4
 
-typedef struct app
-{   uint8_t buffer[BUFFER_MAX];
+typedef struct app {
+    uint8_t buffer[BUFFER_MAX];
     uint8_t bufferSize;
-    void (*execFunction)(uint8_t * buff,uint8_t *buffsize);
+    void (*execFunction)(uint8_t *buff, uint8_t *buffsize);
     uint8_t id;
-    uint8_t * message;
+    uint8_t *message;
 } appT;
 
 int runApp();
-int addApplication(void * func,char * message);
+int addApplication(void *func, char *message);
 
 #endif

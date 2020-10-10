@@ -1,5 +1,5 @@
-#include <stdint.h>
 #include <selfLib.h>
+#include <stdint.h>
 
 // uint64_t my_create_process(char * name){
 //   return 0;
@@ -40,7 +40,7 @@
 //     printf("ERROR OPENING SEM\n");
 //     return;
 //   }
-  
+
 //   for (i = 0; i < N; i++){
 //     if (sem) my_sem_wait(SEM_ID);
 //     slowInc(&global, value);
@@ -48,22 +48,22 @@
 //   }
 
 //   if (sem) my_sem_close(SEM_ID);
-  
+
 //   printf("Final value: %d\n", global);
 // }
 
-int test_sync(int argc, char*argv[]){
- // uint64_t i;
+int test_sync(int argc, char* argv[]) {
+    // uint64_t i;
 
-  // global = 0;
+    // global = 0;
 
-  // printf("CREATING PROCESSES...(WITH SEM)\n");
+    // printf("CREATING PROCESSES...(WITH SEM)\n");
 
-  // for(i = 0; i < TOTAL_PAIR_PROCESSES; i++){
-  //  my_create_process("inc", 1, 1, 1000000);
-  //   my_create_process("inc", 1, -1, 1000000);
-  // }
-  return 0;
+    // for(i = 0; i < TOTAL_PAIR_PROCESSES; i++){
+    //  my_create_process("inc", 1, 1, 1000000);
+    //   my_create_process("inc", 1, -1, 1000000);
+    // }
+    return 0;
 }
 
 // void test_no_sync(){

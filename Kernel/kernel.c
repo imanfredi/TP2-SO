@@ -1,15 +1,15 @@
-#include <stdint.h>
+#include <exceptions.h>
+#include <idtLoader.h>
+#include <interrupts.h>
 #include <lib.h>
+#include <memoryManager.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
-#include <idtLoader.h>
-#include <screenDriver.h>
-#include <interrupts.h>
 #include <scheduler.h>
-#include <exceptions.h>
-#include <memoryManager.h>
+#include <screenDriver.h>
+#include <stdint.h>
 #include <stringFunctionsKernel.h>
-#define HEAP_SIZE 1024*1024*128
+#define HEAP_SIZE 1024 * 1024 * 128
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -21,47 +21,41 @@ extern uint8_t endOfKernel;
 static const uint64_t PageSize = 0x1000;
 static void *const sampleCodeModuleAddress = (void *)0x400000;
 static void *const sampleDataModuleAddress = (void *)0x500000;
-static void * const heapBaseAddress = (void*)0x600000;
+static void *const heapBaseAddress = (void *)0x600000;
 
 typedef int (*EntryPoint)();
 
-void clearBSS(void *bssAddress, uint64_t bssSize)
-{
-	memset(bssAddress, 0, bssSize);
+void clearBSS(void *bssAddress, uint64_t bssSize) {
+    memset(bssAddress, 0, bssSize);
 }
 
-void *getStackBase()
-{
-	return (void *)((uint64_t)&endOfKernel + PageSize * 8 //The size of the stack itself, 32KiB
-					- sizeof(uint64_t)					  //Begin at the top of the stack
-	);
+void *getStackBase() {
+    return (void *)((uint64_t)&endOfKernel + PageSize * 8  //The size of the stack itself, 32KiB
+                    - sizeof(uint64_t)                     //Begin at the top of the stack
+    );
 }
 
-void *initializeKernelBinary()
-{
-	void *moduleAddresses[] = {
-		sampleCodeModuleAddress,
-		sampleDataModuleAddress};
+void *initializeKernelBinary() {
+    void *moduleAddresses[] = {
+        sampleCodeModuleAddress,
+        sampleDataModuleAddress};
 
-	loadModules(&endOfKernelBinary, moduleAddresses);
+    loadModules(&endOfKernelBinary, moduleAddresses);
 
-	clearBSS(&bss, &endOfKernel - &bss);
+    clearBSS(&bss, &endOfKernel - &bss);
 
-	return getStackBase();
+    return getStackBase();
 }
 
-int main(){
+int main() {
+    initializeMemoryManager(heapBaseAddress, HEAP_SIZE);
 
-	
-	initializeMemoryManager(heapBaseAddress,HEAP_SIZE);
-	
-	load_idt();
-	initScreen();
-	initializeScheduler();
-	char *argv[]={"./sample"};
-	addNewProcess(sampleCodeModuleAddress,1,argv,FOREGROUND);
-    initExceptions(sampleCodeModuleAddress,getInitialSP());
-	_hlt();
-	return 0;
-
+    load_idt();
+    initScreen();
+    initializeScheduler();
+    char *argv[] = {"./sample"};
+    addNewProcess(sampleCodeModuleAddress, 1, argv, FOREGROUND);
+    initExceptions(sampleCodeModuleAddress, getInitialSP());
+    _hlt();
+    return 0;
 }

@@ -44,9 +44,8 @@ typedef struct {
     void *entryPoint;
     uint64_t priority;
     uint64_t slotsLeft;
-    uint64_t execution; //se guarda si corre en foreground o background
+    uint64_t execution;  //se guarda si corre en foreground o background
 } pcb_t;
-
 
 typedef struct node {
     pcb_t process;
