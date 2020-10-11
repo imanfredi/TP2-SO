@@ -1,6 +1,7 @@
 #include <adminScreen.h>
 #include <keyboardDriver.h>
 #include <lib.h>
+#include <semaphore.h>
 #include <memoryManager.h>
 #include <rtc.h>
 #include <scheduler.h>
@@ -28,10 +29,15 @@ static uint64_t getPid(Register_t *registers);
 static uint64_t yieldSyscall(Register_t *registers);
 static uint64_t mallocSyscall(Register_t *registers);
 static uint64_t freeSyscall(Register_t *registers);
+static uint64_t semOpenSyscall(Register_t *registers);
+static uint64_t semCloseSyscall(Register_t *registers);
+static uint64_t semPostSyscall(Register_t *registers);
+static uint64_t semWaitSyscall(Register_t *registers);
+
 static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen, &readMem, &time, &information,
                                                         &temperature, &cpuModel, &getRegisters, &screenRequest, &startAppsVisual,
                                                         &newProcess, &ps, &blockProcess, &nicePriority, &killProcess, &getSeconds,
-                                                        &getPid, &yieldSyscall, &mallocSyscall, &freeSyscall};
+                                                        &getPid, &yieldSyscall, &mallocSyscall, &freeSyscall, &semOpenSyscall, &semCloseSyscall, &semPostSyscall, &semWaitSyscall};
 
 uint64_t systemCallDispatcher(Register_t *parameters) {
     uint64_t output = -1;
@@ -143,4 +149,18 @@ static uint64_t mallocSyscall(Register_t *registers) {
 static uint64_t freeSyscall(Register_t *registers) {
     free2((void *)registers->rdi);
     return 0;
+}
+
+static uint64_t semOpenSyscall(Register_t *registers) { //22
+    return (uint64_t)sem_open((char*)registers->rdi,(int)registers->rsi);
+}
+static uint64_t semCloseSyscall(Register_t *registers) { //23
+    return sem_close((sem_t*)registers->rdi);
+    
+}
+static uint64_t semPostSyscall(Register_t *registers) {//24
+    return sem_post((sem_t*)registers->rdi);
+}
+static uint64_t semWaitSyscall(Register_t *registers) {//25
+    return sem_wait((sem_t*)registers->rdi);
 }

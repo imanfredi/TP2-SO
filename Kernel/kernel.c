@@ -9,6 +9,7 @@
 #include <screenDriver.h>
 #include <stdint.h>
 #include <stringFunctionsKernel.h>
+#include <semaphore.h>
 #define HEAP_SIZE 1024 * 1024 * 128
 
 extern uint8_t text;
@@ -49,7 +50,7 @@ void *initializeKernelBinary() {
 
 int main() {
     initializeMemoryManager(heapBaseAddress, HEAP_SIZE);
-
+    initSemaphores();
     load_idt();
     initScreen();
     initializeScheduler();

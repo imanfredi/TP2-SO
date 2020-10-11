@@ -19,5 +19,9 @@ uint64_t getPid();
 uint64_t getSecondsElapsed();
 uint64_t malloc2(unsigned nbytes);
 void free2();
+void * sem_open(char * name,int value);
+int sem_close(void * sem);
+int sem_wait(void * sem);
+int sem_post(void * sem);
 
 #endif

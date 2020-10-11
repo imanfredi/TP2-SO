@@ -40,9 +40,24 @@ uint8_t *strcpy(uint8_t dest[], const uint8_t source[])
         dest[i] = source[i];
         i++;
     }
+    dest[i]=0;
 
     return dest;
 }
+
+uint8_t *strncpy(uint8_t dest[], const uint8_t source[], uint64_t n)
+{
+    int i = 0;
+    while (source[i] != '\0' && i<n )
+    {
+        dest[i] = source[i];
+        i++;
+    }
+    dest[i]=0;
+
+    return dest;
+}
+
 
 int strlen(const uint8_t *s)
 {

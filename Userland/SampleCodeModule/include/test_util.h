@@ -8,5 +8,5 @@ int test_processes();
 int test_mm();
 int test_prio();
 
-//int test_sync(int argc, char*argv[]);
-//void test_no_sync();
+int test_sync();
+int test_no_sync();

@@ -136,8 +136,9 @@ uint64_t schedule(uint64_t rsp) {
         if (currentProcess->process.slotsLeft <= 0) {  //se me acabo el tiempo de correr o me mataron/bloquearon
             if (currentProcess != dummy)
                 enqueueProcess(currentProcess);
-            if (processQueue->ready > 0)
+            if (processQueue->ready > 0){
                 getNextReady();
+            }
             else {
                 currentProcess = dummy;
             }  //aca solo entro si no hay ninguno ready. Incluso el current no esta ready

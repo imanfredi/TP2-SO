@@ -3,6 +3,8 @@ GLOBAL _temperature
 GLOBAL cpuModel
 GLOBAL getInitialSP
 GLOBAL callTimerTick
+GLOBAL enterCR
+GLOBAL leaveCR
 section .text
 
 
@@ -89,4 +91,20 @@ getInitialSP:
 
 callTimerTick:
 	int 20h
+	ret
+
+enterCR:
+	push rax
+
+.loop:
+	mov al, 1
+	xchg al, [rdi]
+	cmp al, 0
+	jne .loop
+
+	pop rax
+	ret
+
+leaveCR:
+	mov BYTE [rdi], 0
 	ret

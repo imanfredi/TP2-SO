@@ -1,80 +1,86 @@
+#include <commands.h>
 #include <selfLib.h>
-#include <stdint.h>
+#include <stringFunctions.h>
+#include <test_util.h>
 
-// uint64_t my_create_process(char * name){
-//   return 0;
-// }
+#define TOTAL_PAIR_PROCESSES 2
+#define SEM_ID "sem"
 
-// uint64_t my_sem_open(char *sem_id, uint64_t initialValue){
-//   return 0;
-// }
+int64_t global;  //shared memory
 
-// uint64_t my_sem_wait(char *sem_id){
-//   return 0;
-// }
+void slowInc(int64_t* p, int64_t inc) {
+    int64_t aux = *p;
+    aux += inc;
+    _yield();
+    *p = aux;
+}
 
-// uint64_t my_sem_post(char *sem_id){
-//   return 0;
-// }
+int inc(int argc, char*argv[]){
 
-// uint64_t my_sem_close(char *sem_id){
-//   return 0;
-// }
+    int sem = atoi((uint8_t*)argv[1]);
+    int value = atoi((uint8_t*)argv[2]);
+    int N = atoi((uint8_t*)argv[3]);
+    void * aux;
+    uint64_t i;
+    
+    if (sem && (aux=sem_open(SEM_ID, 1)) == 0) {
+        printf("ERROR OPENING SEM\n");
+        return -1;
+    }
 
-// #define TOTAL_PAIR_PROCESSES 2
-// #define SEM_ID "sem"
+    for (i = 0; i < N; i++) {
+        if (sem){
+            sem_wait(aux);
+        }
+        slowInc(&global, value);
+        if (sem){
+            sem_post(aux);
+        }
+    }
 
-// int64_t global;  //shared memory
+    if (sem){
+        sem_close(aux);
+    }
 
-// void slowInc(int64_t *p, int64_t inc){
-//   int64_t aux = *p;
-//   aux += inc;
-//   yield();
-//   *p = aux;
-// }
+    if(sem)
+        printf("SYNC Final value: %d\n", global);
+    else
+        printf("NO SYNC Final value: %d\n", global);
 
-// void inc(uint64_t sem, int64_t value, uint64_t N){
-//   uint64_t i;
-
-//   if (sem && !my_sem_open(SEM_ID, 1)){
-//     printf("ERROR OPENING SEM\n");
-//     return;
-//   }
-
-//   for (i = 0; i < N; i++){
-//     if (sem) my_sem_wait(SEM_ID);
-//     slowInc(&global, value);
-//     if (sem) my_sem_post(SEM_ID);
-//   }
-
-//   if (sem) my_sem_close(SEM_ID);
-
-//   printf("Final value: %d\n", global);
-// }
-
-int test_sync(int argc, char* argv[]) {
-    // uint64_t i;
-
-    // global = 0;
-
-    // printf("CREATING PROCESSES...(WITH SEM)\n");
-
-    // for(i = 0; i < TOTAL_PAIR_PROCESSES; i++){
-    //  my_create_process("inc", 1, 1, 1000000);
-    //   my_create_process("inc", 1, -1, 1000000);
-    // }
     return 0;
 }
 
-// void test_no_sync(){
-//   uint64_t i;
+int test_sync() {
+    uint64_t i;
 
-//   global = 0;
+    global = 0;
+    
+    printf("CREATING PROCESSES...(WITH SEM)\n");
+    
+    char * argv1[]={"inc","1","1","100"};
+    char * argv2[]={"inc","1","-1","100"};
 
-//   printf("CREATING PROCESSES...(WITHOUT SEM)\n");
 
-//   for(i = 0; i < TOTAL_PAIR_PROCESSES; i++){
-//     my_create_process("inc", 0, 1, 1000000);
-//     my_create_process("inc", 0, -1, 1000000);
-//   }
-// }
+    for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
+        addNewProcess(&inc, 4, argv1, BACKGROUND);
+        addNewProcess(&inc, 4,argv2, BACKGROUND);
+    }
+    return 0;
+}
+
+int test_no_sync() {
+    uint64_t i;
+
+    global = 0;
+
+    printf("CREATING PROCESSES...(WITHOUT SEM)\n");
+
+    char * argv1[]={"inc","0","1","100"};
+    char * argv2[]={"inc","0","-1","100"};
+
+    for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
+        addNewProcess(&inc, 4, argv1, BACKGROUND);
+        addNewProcess(&inc, 4,argv2, BACKGROUND);
+    }
+    return 0;
+}

@@ -11,6 +11,11 @@ GLOBAL getSecondsElapsed
 GLOBAL getPid
 GLOBAL free2
 GLOBAL malloc2
+GLOBAL sem_open
+GLOBAL sem_close
+GLOBAL sem_wait
+GLOBAL sem_post
+
 extern strlen
 
 getChar:
@@ -201,7 +206,45 @@ free2:
     ret
 
 
+sem_open:
 
+    push rbp
+    mov rbp,rsp
+    mov rax,22
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
+sem_close:
+
+    push rbp
+    mov rbp,rsp
+    mov rax,23
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
+sem_post:
+
+    push rbp
+    mov rbp,rsp
+    mov rax,24
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
+sem_wait:
+
+    push rbp
+    mov rbp,rsp
+    mov rax,25
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
 
 section .bss
 

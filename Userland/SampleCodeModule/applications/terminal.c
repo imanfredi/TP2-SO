@@ -33,6 +33,7 @@ static int runTestMM(int argc, char *argv[]);
 static int runTestPrio(int argc, char *argv[]);
 static int runTestProcesses(int argc, char *argv[]);
 static int runTestSync(int argc, char *argv[]);
+static int runTestNoSync(int argc, char *argv[]);
 static int loop(int argc, char *argv[]);
 
 static commandsT commandVec[COMMANDS] = {
@@ -52,7 +53,8 @@ static commandsT commandVec[COMMANDS] = {
     {"runTestMM", &runTestMM, "Realiza un testeo del memory manager", 1},
     {"runTestPrio", &runTestPrio, "Realiza un testeo de las prioridades", 1},
     {"runTestProcesses", &runTestProcesses, "Realiza un testeo de los procesos", 1},
-    {"runTestSync", &runTestSync, "Realiza un testo de la sincronizacion de procesos", 1}};
+    {"runTestSync", &runTestSync, "Realiza un testo de la sincronizacion de procesos", 1},
+    {"runTestNoSync",&runTestNoSync,"Realiza un testeo de la no sincronizacion de procesos",1}};
 
 static uint8_t registers[REGISTERS][REG_NAME] = {"RIP", "RSP", "RAX", "RBX", "RCX", "RDX", "RSI", "RBP",
                                                  "RDI", "R8 ", "R9 ", "R10", "R11", "R12", "R13", "R14", "R15"};
@@ -337,6 +339,11 @@ static int runTestMM(int argc, char *argv[]) {
 }
 
 static int runTestSync(int argc, char *argv[]) {
-    //test_sync();
+    test_sync();
+    return 0;
+}
+
+static int runTestNoSync(int argc, char *argv[]) {
+    test_no_sync();
     return 0;
 }

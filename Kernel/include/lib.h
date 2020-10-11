@@ -12,5 +12,7 @@ uint64_t cpuModel();
 int _temperature(void);
 void *getInitialSP();
 void *callTimerTick();
+void enterCR(int * lock);
+void leaveCR(int * lock);
 
 #endif
