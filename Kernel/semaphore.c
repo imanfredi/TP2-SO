@@ -13,7 +13,7 @@ static int closingSem;
 static void enqueueBlock(sem_t* sem, uint64_t pid);
 static int dequeueBlock(sem_t* sem);
 static void dumpProcessBlocked(process_t * process);
-static void dumpSem(sem_t * sem);
+void dumpSem(sem_t * sem);
 
 int initSemaphores() {
     semList = malloc2(sizeof(semList_t));
@@ -161,7 +161,7 @@ int semInfo(){
 
 
 
-static void dumpSem(sem_t * sem){
+void dumpSem(sem_t * sem){
     enterCR(&sem->lock);
     char * space="    ";
     uint8_t number[10];

@@ -34,6 +34,6 @@ int sem_close(sem_t * sem);
 int sem_wait(sem_t * sem);
 int sem_post(sem_t * sem);
 int changeValue(sem_t * sem, int value);
-
+void dumpSem(sem_t * sem);
 
 #endif
