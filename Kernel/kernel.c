@@ -56,7 +56,6 @@ int main() {
     initScreen();
     initializeScheduler();
     initPipes();
-    while(1);
     char *argv[] = {"./sample"};
     addNewProcess(sampleCodeModuleAddress, 1, argv, FOREGROUND,NULL);
     initExceptions(sampleCodeModuleAddress, getInitialSP());
