@@ -8,6 +8,8 @@
 #define BACKGROUND 1
 #define SIZE_REGISTER 16
 #define QUANTUM 1
+#define STDIN 0
+#define STDOUT 1
 #define MAX_PRIORITY 10
 #define NULL 0
 
@@ -42,6 +44,8 @@ typedef struct {
     uint64_t rbp;
     uint32_t state;
     void *entryPoint;
+    uint32_t stdin;
+    uint32_t stdout;
     uint64_t priority;
     uint64_t slotsLeft;
     uint64_t execution;  //se guarda si corre en foreground o background
@@ -60,7 +64,7 @@ typedef struct {
 } processQueue_t;
 
 void initializeScheduler();
-uint64_t addNewProcess(int (*function)(int, char **), int argc, char **argv, uint64_t execution);
+uint64_t addNewProcess(int (*function)(int, char **), int argc, char **argv, uint64_t execution,int fd[]);
 uint64_t kill(uint64_t pid);
 uint64_t loop(void);
 uint64_t nice(uint64_t pid, uint64_t priority);
@@ -71,5 +75,7 @@ uint64_t schedule(uint64_t rsp);
 uint64_t block(uint64_t pid);
 uint64_t getCurrentPid();
 uint64_t yield();
+int getCurrentStdin();
+int getCurrentStdout();
 
 #endif

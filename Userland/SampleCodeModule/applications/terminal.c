@@ -35,6 +35,8 @@ static int runTestProcesses(int argc, char *argv[]);
 static int runTestSync(int argc, char *argv[]);
 static int runTestNoSync(int argc, char *argv[]);
 static int loop(int argc, char *argv[]);
+static int mem(int argc, char *argv[]);
+static int sem(int argc, char *argv[]);
 
 static commandsT commandVec[COMMANDS] = {
     {"help", &help, "Lista la informacion de los comandos disponibles.", 1},
@@ -50,6 +52,8 @@ static commandsT commandVec[COMMANDS] = {
     {"loop", &loop, "Imprime su ID con un saludo cada una determinada cantidad de segundos. Modo de uso \"loop <SECONDS>\"", 2},
     {"nice", &nice, "Cambia la prioridad de un proceso. Modo de uso \"nice <PID> <PRIORITY>\"", 3},
     {"kill", &kill, "Mata el proceso dado un id", 2},
+    {"sem",&sem,"Imprime informacion de los semaforos",1},
+    {"mem",&mem,"Imprime informacion de la memoria",1},
     {"runTestMM", &runTestMM, "Realiza un testeo del memory manager", 1},
     {"runTestPrio", &runTestPrio, "Realiza un testeo de las prioridades", 1},
     {"runTestProcesses", &runTestProcesses, "Realiza un testeo de los procesos", 1},
@@ -118,11 +122,11 @@ static void readCommand(uint8_t *buffer, uint8_t *buffDim) {
         }
         if (index < COMMANDS) {
             if ((fg = isBackground()) && commandVec[index].parameters == argDim - 1) {
-                addNewProcess(commandVec[index].function, commandVec[index].parameters, (char **)arguments, fg);
+                addNewProcess(commandVec[index].function, commandVec[index].parameters, (char **)arguments, fg,NULL);
             }
 
             else if (commandVec[index].parameters == argDim) {
-                addNewProcess(commandVec[index].function, commandVec[index].parameters, (char **)arguments, fg);
+                addNewProcess(commandVec[index].function, commandVec[index].parameters, (char **)arguments, fg,NULL);
             }
 
             else
@@ -323,6 +327,19 @@ static int temperature(int argc, char *argv[]) {
     return 0;
 }
 
+
+static int mem(int argc, char *argv[]){
+    putChar('\n');
+    memInfo();
+    putChar('\n');
+    return 0;
+}
+static int sem(int argc, char *argv[]){
+    putChar('\n');
+    semInfo();
+    putChar('\n');
+    return 0;
+}
 static int runTestProcesses(int argc, char *argv[]) {
     test_processes();
     return 0;

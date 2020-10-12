@@ -15,7 +15,7 @@ static processNode *currentProcess;
 static processQueue_t *processQueue;
 static processNode *dummy;
 
-static void initPCB(processNode *node, char *name, int (*function)(int, char **), uint64_t ppid, uint64_t execution);
+static void initPCB(processNode *node, char *name, int (*function)(int, char **), uint64_t ppid, uint64_t execution, int fd[]);
 static void initStackFrame(int (*function)(int, char **), int argc, char **argv, processNode *node);
 static void loader2(int argc, char *argv[], int (*function)(int, char **));
 static processNode *dequeueProcess();
@@ -35,7 +35,7 @@ void initializeScheduler() {
     processQueue->last = NULL;
     currentProcess = NULL;
     char *argv[] = {"dummyProcess"};
-    addNewProcess(&dummyProcess, 1, argv, BACKGROUND);
+    addNewProcess(&dummyProcess, 1, argv, BACKGROUND,NULL);
     dummy = dequeueProcess();
     processQueue->size = 0;
     processQueue->ready = 0;
@@ -52,7 +52,7 @@ void finishScheduler() {
     free2(processQueue);
 }
 
-uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[], uint64_t execution) {
+uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[], uint64_t execution,int fd[]) {
     if (currentProcess != NULL) {
         //si quiere crear un proceso en foreground y esta en background no se le permite
         if (execution == FOREGROUND && currentProcess->process.execution == BACKGROUND) {
@@ -67,7 +67,7 @@ uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[], ui
         return -1;
 
     argv = copyArgv((char **)((uint64_t)node + sizeof(processNode)), argv, argc);
-    initPCB(node, argv[0], function, ppid, execution);
+    initPCB(node, argv[0], function, ppid, execution,fd);
     initStackFrame(function, argc, argv, node);
     enqueueProcess(node);
     processQueue->ready++;
@@ -105,7 +105,7 @@ void initStackFrame(int (*function)(int, char **), int argc, char **argv, proces
     stackFrame->rsp = (uint64_t)node->process.rsp;
 }
 
-void initPCB(processNode *node, char *name, int (*function)(int, char **), uint64_t ppid, uint64_t execution) {
+void initPCB(processNode *node, char *name, int (*function)(int, char **), uint64_t ppid, uint64_t execution,int fd[]) {
     pcb_t *pcb = &(node->process);
     pcb->pid = newPid();
     pcb->ppid = ppid;
@@ -113,6 +113,8 @@ void initPCB(processNode *node, char *name, int (*function)(int, char **), uint6
     pcb->rbp = (uint64_t)node + STACK_SIZE + sizeof(processNode) - sizeof(char *);
     pcb->rsp = (uint64_t)(pcb->rbp - sizeof(t_stackFrame));
     pcb->state = READY;
+    pcb->stdin = fd==NULL ? STDIN: fd[0];
+    pcb->stdout = fd==NULL ? STDOUT : fd[1];
     pcb->entryPoint = function;
     pcb->priority = INITIAL_PRIORITY;
     pcb->slotsLeft = INITIAL_PRIORITY * QUANTUM;
@@ -245,29 +247,29 @@ static void printProcessInfo(processNode *n) {
     uint8_t registers[SIZE_REGISTER + 1];
     uint64_t len = 0;
 
-    printStringScreen((uint8_t *)n->process.name, (uint64_t)strlen((uint8_t *)n->process.name), 0x07);
+    printStringScreen((uint8_t *)n->process.name, (uint64_t)strlen((uint8_t *)n->process.name),BLACK_WHITE);
 
-    printStringScreen((uint8_t *)"      ", strlen((uint8_t *)"      "), 0x07);
+    printStringScreen((uint8_t *)"      ", strlen((uint8_t *)"      "),BLACK_WHITE);
 
     len = uintToBase(n->process.pid, (uint8_t *)number, 10);
-    printStringScreen(number, len, 0x07);
-    printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "), 0x07);
+    printStringScreen(number, len,BLACK_WHITE);
+    printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "),BLACK_WHITE);
 
     len = uintToBase(n->process.ppid, (uint8_t *)number, 10);
-    printStringScreen(number, len, 0x07);
-    printStringScreen((uint8_t *)"     ", strlen((uint8_t *)"     "), 0x07);
+    printStringScreen(number, len,BLACK_WHITE);
+    printStringScreen((uint8_t *)"     ", strlen((uint8_t *)"     "),BLACK_WHITE);
 
     len = uintToBase(n->process.priority, number, 10);
-    printStringScreen(number, len, 0x07);
-    printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "), 0x07);
+    printStringScreen(number, len,BLACK_WHITE);
+    printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "),BLACK_WHITE);
 
     len = uintToBaseWithLength(n->process.rsp, registers, SIZE_REGISTER, SIZE_REGISTER + 1);
-    printStringScreen(registers, SIZE_REGISTER + 1, 0x07);
-    printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "), 0x07);
+    printStringScreen(registers, SIZE_REGISTER + 1,BLACK_WHITE);
+    printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "),BLACK_WHITE);
 
     len = uintToBaseWithLength(n->process.rbp, registers, SIZE_REGISTER, SIZE_REGISTER + 1);
-    printStringScreen(registers, SIZE_REGISTER + 1, 0x07);
-    printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "), 0x07);
+    printStringScreen(registers, SIZE_REGISTER + 1,BLACK_WHITE);
+    printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "),BLACK_WHITE);
 
     len = uintToBase(n->process.execution, number, 10);
     printStringScreen(number, len, 0x07);
@@ -364,4 +366,15 @@ static char **copyArgv(char **buff, char **argv, int argc) {
     }
 
     return buff;
+}
+
+
+
+int getCurrentStdout(){
+    return currentProcess->process.stdout;
+    
+}
+
+int getCurrentStdin(){
+    return currentProcess->process.stdin;
 }

@@ -1,7 +1,12 @@
 /*Implementacion basada en el libro de K&R*/
 
+#include <memoryManager.h>
+#include <stringFunctionsKernel.h>
+#include <adminScreen.h>
+
 #define NULL 0
 #define HEAP_SIZE 1024 * 1024 * 128  //la maxima cantidad que soporta nuestro memory manager
+
 typedef long Align;
 
 union header { /* header del bloque */
@@ -89,4 +94,32 @@ void free2(void *ptr) {
             prev->s.next = aux; /*Si no hago que el de atrás me apunte*/
         }
     }
+}
+
+int memInfo(){
+    int i;
+    Header * curr;
+    int len;
+    uint8_t number[40];
+    char * message1="Bloque: ";
+    char * message2="Cantidad de Bytes: ";
+    for (i=1, curr = freep; curr != NULL ; curr=curr->s.next,i++)
+    {  
+        printStringScreen((uint8_t*)message1,strlen((uint8_t*)message1),BLACK_WHITE);
+        
+        len = uintToBase(i,number,10);
+        printStringScreen(number,len,BLACK_WHITE);
+        printStringScreen((uint8_t*)"  ",strlen((uint8_t*)"  "),BLACK_WHITE);
+        
+        printStringScreen((uint8_t*)message2,strlen((uint8_t*)message2),BLACK_WHITE);
+
+        len = uintToBase(curr->s.size,number,10);
+        printStringScreen(number,len,BLACK_WHITE);
+
+        newLineScreen();
+        
+    }
+    
+    return 0;
+
 }

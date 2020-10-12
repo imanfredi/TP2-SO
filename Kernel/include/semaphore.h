@@ -16,8 +16,8 @@ typedef struct pNode {
 typedef struct semNode {
     process_t * firstWaiting;
     process_t * lastWaiting;
-    int value;
     char name[MAX_LEN];
+    int value;
     struct semNode * next;
     int lock;
     int proccessCount;
@@ -27,12 +27,13 @@ typedef struct{
     sem_t * first;
 }semList_t;
 
+int semInfo();
 int initSemaphores();
 sem_t * sem_open(char * name,int value);
 int sem_close(sem_t * sem);
 int sem_wait(sem_t * sem);
 int sem_post(sem_t * sem);
-
+int changeValue(sem_t * sem, int value);
 
 
 #endif

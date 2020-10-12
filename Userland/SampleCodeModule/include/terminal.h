@@ -11,7 +11,7 @@
 
 #define BUFFERSIZE 80
 #define CLEAR_SCREEN_CODE 252
-#define COMMANDS 18
+#define COMMANDS 20
 #define SIZE 25
 #define FALSE 0
 #define TRUE 1

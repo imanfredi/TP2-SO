@@ -2,6 +2,7 @@
 #define _SELF_LIB_H
 
 #define FOREGROUND 0
+#define NULL 0
 #define BACKGROUND 1
 
 #include <stdint.h>
@@ -14,7 +15,7 @@ uint8_t nextScreen(uint8_t screen);
 uint8_t printError(uint8_t *string);
 uint8_t needScreen();
 uint8_t initVisualEnvironment();
-uint64_t addNewProcess(int (*function)(int, char **), int argc, char **argv, uint64_t execution);
+uint64_t addNewProcess(int (*function)(int, char **), int argc, char **argv, uint64_t execution, int fd[]);
 uint64_t getPid();
 uint64_t getSecondsElapsed();
 uint64_t malloc2(unsigned nbytes);
@@ -23,5 +24,8 @@ void * sem_open(char * name,int value);
 int sem_close(void * sem);
 int sem_wait(void * sem);
 int sem_post(void * sem);
+void memInfo();
+void semInfo();
+int changeValue(void * sem,int value);
 
 #endif

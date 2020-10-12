@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <stringFunctionsKernel.h>
 #include <semaphore.h>
+#include <pipe.h>
 #define HEAP_SIZE 1024 * 1024 * 128
 
 extern uint8_t text;
@@ -54,8 +55,10 @@ int main() {
     load_idt();
     initScreen();
     initializeScheduler();
+    initPipes();
+    while(1);
     char *argv[] = {"./sample"};
-    addNewProcess(sampleCodeModuleAddress, 1, argv, FOREGROUND);
+    addNewProcess(sampleCodeModuleAddress, 1, argv, FOREGROUND,NULL);
     initExceptions(sampleCodeModuleAddress, getInitialSP());
     _hlt();
     return 0;

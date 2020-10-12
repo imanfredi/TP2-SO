@@ -23,7 +23,7 @@ int inc(int argc, char*argv[]){
     void * aux;
     uint64_t i;
     
-    if (sem && (aux=sem_open(SEM_ID, 1)) == 0) {
+    if (sem && (aux=sem_open(SEM_ID, 1)) == NULL) {
         printf("ERROR OPENING SEM\n");
         return -1;
     }
@@ -62,8 +62,8 @@ int test_sync() {
 
 
     for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-        addNewProcess(&inc, 4, argv1, BACKGROUND);
-        addNewProcess(&inc, 4,argv2, BACKGROUND);
+        addNewProcess(&inc, 4, argv1, BACKGROUND,NULL);
+        addNewProcess(&inc, 4,argv2, BACKGROUND,NULL);
     }
     return 0;
 }
@@ -79,8 +79,8 @@ int test_no_sync() {
     char * argv2[]={"inc","0","-1","100"};
 
     for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-        addNewProcess(&inc, 4, argv1, BACKGROUND);
-        addNewProcess(&inc, 4,argv2, BACKGROUND);
+        addNewProcess(&inc, 4, argv1, BACKGROUND,NULL);
+        addNewProcess(&inc, 4,argv2, BACKGROUND,NULL);
     }
     return 0;
 }

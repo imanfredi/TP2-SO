@@ -15,6 +15,9 @@ GLOBAL sem_open
 GLOBAL sem_close
 GLOBAL sem_wait
 GLOBAL sem_post
+GLOBAL semInfo
+GLOBAL memInfo
+GLOBAL changeValue
 
 extern strlen
 
@@ -245,6 +248,36 @@ sem_wait:
     mov rsp,rbp
     pop rbp
     ret
+
+
+semInfo:
+    push rbp
+    mov rbp,rsp
+    mov rax,26
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
+
+memInfo:
+    push rbp
+    mov rbp,rsp
+    mov rax,27
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
+changeValue:
+    push rbp
+    mov rbp,rsp
+    mov rax,28
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
 
 section .bss
 
