@@ -11,7 +11,7 @@
 #include <pipe.h>
 
 /*Se declara el tipo que devuelven y luego lo que reciben. Si el parentesis esta vacio, significa que recibe cualquier cosa*/
-static uint64_t write(Register_t *registers);
+static uint64_t writeSyscall(Register_t *registers);
 static uint64_t read(Register_t *registers);
 static uint64_t clear(Register_t *registers);
 static uint64_t swapScreen(Register_t *registers);
@@ -37,19 +37,19 @@ static uint64_t semWaitSyscall(Register_t *registers);
 static uint64_t semInfoSyscall(Register_t *registers);
 static uint64_t memInfoSyscall(Register_t *registers);
 static uint64_t changeValueSyscall(Register_t *registers);
-static int writeInStdout(uint8_t * buffer, uint8_t colour,uint64_t len);
+static int writeInStdout(char * buffer,uint64_t len,uint8_t colour);
 static uint64_t pipeOpenSyscall(Register_t *registers);
 static uint64_t closePipeSyscall(Register_t *registers);
+static uint64_t writeInPipeSyscall(Register_t * registers);
 
 
 
-
-static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen, &readMem, &time, &information,
+static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &writeSyscall, &clear, &swapScreen, &readMem, &time, &information,
                                                         &temperature, &cpuModel, &getRegisters, &screenRequest, &startAppsVisual,
                                                         &newProcess, &ps, &blockProcess, &nicePriority, &killProcess, &getSeconds,
                                                         &getPid, &yieldSyscall, &mallocSyscall, &freeSyscall, &semOpenSyscall, &semCloseSyscall,
                                                         &semPostSyscall, &semWaitSyscall, &semInfoSyscall,&memInfoSyscall,&changeValueSyscall,
-                                                        &pipeOpenSyscall,&closePipeSyscall};
+                                                        &pipeOpenSyscall,&closePipeSyscall,&writeInPipeSyscall};
 
 uint64_t systemCallDispatcher(Register_t *parameters) {
     uint64_t output = -1;
@@ -76,32 +76,26 @@ Funcion write:
     Recibe por parametros en rdi el file descriptor, el buffer con el string  en rsi y la cantidad de caracteres en rdx
 */
 
-static uint64_t write(Register_t *registers) {
-    uint8_t colour;
-    int aux = getCurrentStdout();
-    uint8_t * buffer = (uint8_t *)registers->rsi;
-    int len;
-    if(aux == STDOUT){
-        if (registers->rdi == 1) {
-            colour = BLACK_WHITE;
-        } else {
-            colour = BLACK_RED;
-        }
-        len = writeInStdout(buffer,colour,registers->rdx);
-    }
-    else{
-
-        len = writePipeString(aux,(char*)buffer);
-    }
-    
-    return (uint64_t)len;
-    
+static uint64_t writeSyscall(Register_t *registers) {
+    char * buffer = (char *)registers->rsi;
+    return (uint64_t)write(buffer,(int)registers->rdx,(int)registers->rdi);   
 }
 
+uint64_t write(char * buffer,int len,int std){
+        int fd = getCurrentStdout();
+        if(fd == STDOUT){
+            uint8_t colour;
+            if(std == 1)
+                colour = BLACK_WHITE;
+            else
+                colour = BLACK_RED;
+            return writeInStdout(buffer,len,colour);
+        }
+        else
+            return writePipeString(buffer,len,fd);
+}
 
-
-
-static int writeInStdout(uint8_t * buffer, uint8_t colour,uint64_t len){
+static int writeInStdout(char * buffer,uint64_t len,uint8_t colour){
     int i;
     for (i = 0; i < len; i++) {
         if (buffer[i] == '\n') 
@@ -112,7 +106,6 @@ static int writeInStdout(uint8_t * buffer, uint8_t colour,uint64_t len){
             putCharScreen(buffer[i], colour);
     }        
     return i;
-
 }
 
 static uint64_t clear(Register_t *registers) {
@@ -220,4 +213,8 @@ static uint64_t pipeOpenSyscall(Register_t *registers) {  //29
 
 static uint64_t closePipeSyscall(Register_t *registers) {  //30
     return closePipe((int)registers->rdi);
+}
+
+static uint64_t writeInPipeSyscall(Register_t * registers){
+    return writePipe((int)registers->rdi,(char)registers->rsi);
 }

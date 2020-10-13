@@ -119,9 +119,9 @@ char readPipe(int fd) {
     return c;
 }
 
-int writePipeString(int fd, char* buffer) {
+int writePipeString(char* buffer, int len, int fd){
     int i;
-    for (i = 0; buffer[i] != 0; i++)
+    for (i = 0; buffer[i] != 0 && i<len; i++)
         writePipe(fd, buffer[i]);
     return i;
 }

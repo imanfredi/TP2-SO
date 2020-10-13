@@ -16,7 +16,10 @@ static void memToStr(uint8_t *mem, uint8_t *memStr, uint8_t bytesToConvert);
 static int loopProcess(int seconds);
 static int checkParameters(int index, int argc);
 static int getIndex(char *command);
-static void waitPipe(int pipe) ;
+static void waitPipe(int pipe);
+static void addOneProcess();
+static void addTwoProcess();
+
 
 static int time(int argc, char *argv[]);
 static int printmem(int argc, char *argv[]);
@@ -116,40 +119,10 @@ static int help(int argc, char *argv[]) {
 static void readCommand(uint8_t *buffer, uint8_t *buffDim) {
     if (*buffDim > 0) {
         if(splitArgs(buffer) == 0){
-            if (pipe == 1) {
-                int index1 = getIndex(command1[0]);
-                int index2 = getIndex(command2[0]);
-                if (checkParameters(index1, argcP1) == 0 && checkParameters(index2, argcP2) == 0) {
-                    if (index1 != -1 && index2 != -1) {
-                        uint8_t pipeName[10] = "p";
-                        uint8_t number[10];
-                        uintToBase(counter, number, 10);
-                        strcat((uint8_t*)pipeName, number);
-                        counter++;
-                        int aux = pipeOpen((char*)pipeName);
-                        if (aux != -1) {
-                            int fd[2] = {STDIN, aux};
-                            addNewProcess(commandVec[index1].function, argcP1, command1, fg, fd);
-                            if(fg == FOREGROUND){
-                                _block(getPid());
-                            }
-                            fd[0] = aux;
-                            fd[1] = STDOUT;
-                            addNewProcess(commandVec[index2].function, argcP2, command1, BACKGROUND, fd);           
-                            
-                            waitPipe(aux);
-                        }
-                    }
-                }
-
-            } 
-            else{
-                int index = getIndex(command1[0]);
-                if (checkParameters(index, argcP1) == 0)
-                    addNewProcess(commandVec[index].function, argcP1, command1, fg, NULL);
-                else
-                    printString((uint8_t *)"Numero erroneo de argumentos\n");
-            }  
+            if (pipe == 1)
+               addTwoProcess();
+            else
+                addOneProcess();
         }else
             printString((uint8_t *)"Error en la entrada\n");
 
@@ -158,6 +131,52 @@ static void readCommand(uint8_t *buffer, uint8_t *buffDim) {
     cleanBuffer(buffer, buffDim);
     printString((uint8_t *)SHELL_MESSAGE);
 }
+
+
+static void addOneProcess(){
+    int index = getIndex(command1[0]);
+    if(index == -1)
+        printString((uint8_t *)"Comando invalido\n");
+    else{
+        if (checkParameters(index, argcP1) != -1)
+        addNewProcess(commandVec[index].function, argcP1, command1, fg, NULL);
+        else
+        printString((uint8_t *)"Numero erroneo de argumentos\n");
+    }
+}
+
+static void addTwoProcess(){
+    int index1 = getIndex(command1[0]);
+    int index2 = getIndex(command2[0]);
+    if(index1 == -1 || index2 == -1)
+        printString((uint8_t *)"Comando invalido\n");
+    else{
+        if (checkParameters(index1, argcP1) != -1 && checkParameters(index2, argcP2) != -1) {
+            uint8_t pipeName[10] = "p";
+            uint8_t number[10];
+            uintToBase(counter, number, 10);
+            strcat((uint8_t*)pipeName, number);
+            counter++;
+            int aux = pipeOpen((char*)pipeName);
+               if (aux != -1) {
+                    int fd[2] = {STDIN, aux};
+                    addNewProcess(commandVec[index1].function, argcP1, command1, fg, fd);
+                    if(fg == FOREGROUND)
+                        _block(getPid());
+                    fd[0] = aux;
+                    fd[1] = STDOUT;
+                    addNewProcess(commandVec[index2].function, argcP2, command1, BACKGROUND, fd);           
+                    waitPipe(aux);
+                }
+                else
+                    printString((uint8_t *)"Error en la ejecucion\n");
+        }
+        else
+            printString((uint8_t *)"Numero erroneo de argumentos\n");
+    }
+}
+
+
 
 static void waitPipe(int pipe){
     writeInPipe(pipe,-1);
@@ -177,7 +196,10 @@ static int getIndex(char *command) {
 }
 
 static int checkParameters(int index, int argc) {
-    return commandVec[index].parameters == argc;
+    
+    if(index != -1)
+        return commandVec[index].parameters == argc;
+    return -1;
 }
 
 static int splitArgs(uint8_t *buffer) {

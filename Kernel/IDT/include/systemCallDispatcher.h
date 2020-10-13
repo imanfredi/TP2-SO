@@ -1,6 +1,6 @@
 #ifndef _SYSTEM_CALL_DISPATCHER_H
 #define _SYSTEM_CALL_DISPATCHER_H
-#define FUNCTIONS 31
+#define FUNCTIONS 32
 #define BLACK_WHITE 0x07
 #define BLACK_RED 0x04
 
@@ -13,7 +13,7 @@ typedef struct
 
 } Register_t;
 
-
+uint64_t write(char * buffer,int len,int std);
 uint64_t systemCallDispatcher(Register_t *parameters);
 
 #endif
