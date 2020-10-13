@@ -285,6 +285,7 @@ void loader2(int argc, char *argv[], int (*function)(int, char **)) {
 }
 
 uint64_t block(uint64_t pid) {
+
     if (pid > INIT_PROCESS) {
         if (currentProcess->process.pid == pid) {
             currentProcess->process.state = BLOCKED;
@@ -316,8 +317,9 @@ uint64_t kill(uint64_t pid) {
         currentProcess->process.state = KILLED;
         currentProcess->process.slotsLeft = 0;
         processQueue->ready--;
-        if (currentProcess->process.execution == FOREGROUND)
+        if (currentProcess->process.execution == FOREGROUND){
             block(currentProcess->process.ppid);
+        }
         callTimerTick();
         return 0;
     }

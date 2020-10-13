@@ -1,7 +1,7 @@
 #include <terminal.h>
 
-static char *command1[ARG];
-static char *command2[ARG];
+static char *command1[ARG_PROCESS];
+static char *command2[ARG_PROCESS];
 static char * arguments[MAX_ARGS];
 static int argcP1 = 0;
 static int argcP2 = 0;
@@ -10,7 +10,7 @@ static int pipe = 0;
 static int counter = 0;
 
 static void readCommand(uint8_t *buffer, uint8_t *buffDim);
-static int splitArgs(uint8_t *buffer);
+static int splitArgs(char * arguments[], int args);
 static void cleanArgs();
 static void sleep(int seconds);
 static void memToStr(uint8_t *mem, uint8_t *memStr, uint8_t bytesToConvert);
@@ -73,11 +73,8 @@ int runShell(int argc, char *argv[]) {
     uint8_t buffer[BUFFERSIZE];
     uint8_t buffDim = 0;
     needScreen();
-
     printString((uint8_t *)SHELL_MESSAGE);
-
     uint8_t c;
-
     while ((c = getChar()) != EXIT_CODE) {
         if (c != 0) {
             switch (c) {
@@ -119,8 +116,8 @@ static int help(int argc, char *argv[]) {
 
 static void readCommand(uint8_t *buffer, uint8_t *buffDim) {
     if (*buffDim > 0) {
-        int args = strtok(' ',arguments,buffer,MAX_ARGS);
-        if(splitArgs(arguments,args) == 0){
+        int args = strtok(' ',arguments,(char*)buffer,MAX_ARGS);
+        if(splitArgs((char**)arguments,args) == 0){
             if (pipe == 1)
                addTwoProcess();
             else
@@ -163,8 +160,6 @@ static void addTwoProcess(){
                if (aux != -1) {
                     int fd[2] = {STDIN, aux};
                     addNewProcess(commandVec[index1].function, argcP1, command1, fg, fd);
-                    if(fg == FOREGROUND)
-                        _block(getPid());
                     fd[0] = aux;
                     fd[1] = STDOUT;
                     addNewProcess(commandVec[index2].function, argcP2, command1, BACKGROUND, fd);           
@@ -210,7 +205,7 @@ static int splitArgs(char * arguments[], int args) {
     char **aux = command1;
     int *argDim = &argcP1;
     int i = 0;
-    while (i < argDim) {
+    while (i < args) {
         if (strcmp((uint8_t*)arguments[i],(uint8_t*)"|") == 0) {
             if (pipe==0) {
                 aux = command2;
@@ -224,13 +219,13 @@ static int splitArgs(char * arguments[], int args) {
                 fg = BACKGROUND;
             else
                 return -1;
-        } else if (*argDim < ARGS) {
-            aux[(*argDim)++] = token;
+        } else if (*argDim < ARG_PROCESS) {
+            aux[(*argDim)++] = arguments[i];
         } else
             return -1;
         i++;    
     }
-
+    
     return 0;
 }
 
