@@ -262,45 +262,22 @@ int atoi(const uint8_t *arr) {
     return res*signo;
 }
 
-static int is_delim(char c, char *delim) {
-    while (*delim != '\0') {
-        if (c == *delim)
-            return TRUE;
-        delim++;
-    }
-    return FALSE;
-}
+int strtok(char token, char **dest, char *source, int max){
+      int index = 0;
 
+      if (*source != token && *source != '\0')
+            dest[index++] = source;
 
-char *strtok(char *s, char *delim) {
-    static char *p;
-    if (!s)
-        s = p;
-
-    if (!s)
-        return NULL;
-
-    while (1) {
-        if (is_delim(*s, delim)) {
-            s++;
-            continue;
-        }
-        if (*s == '\0')
-            return NULL; 
-        break;
-    }
-
-    char *ret = s;
-    while (1) {
-        if (*s == '\0') {
-            p = s; 
-            return ret;
-        }
-        if (is_delim(*s, delim)) {
-            *s = '\0';
-            p = s + 1;
-            return ret;
-        }
-        s++;
-    }
+      while (*source != '\0') {
+            if (*source == token) {
+                  *source = 0;
+                  if (*(source + 1) != token && (*(source + 1) != '\0')) {
+                        if (index >= max)
+                              return index;
+                        dest[index++] = source + 1;
+                  }
+            }
+            source++;
+      }
+      return index;
 }

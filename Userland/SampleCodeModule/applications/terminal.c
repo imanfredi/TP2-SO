@@ -1,7 +1,8 @@
 #include <terminal.h>
 
-static char *command1[ARG_MAX];
-static char *command2[ARG_MAX];
+static char *command1[ARG];
+static char *command2[ARG];
+static char * arguments[MAX_ARGS];
 static int argcP1 = 0;
 static int argcP2 = 0;
 static int fg = 0;
@@ -118,7 +119,8 @@ static int help(int argc, char *argv[]) {
 
 static void readCommand(uint8_t *buffer, uint8_t *buffDim) {
     if (*buffDim > 0) {
-        if(splitArgs(buffer) == 0){
+        int args = strtok(' ',arguments,buffer,MAX_ARGS);
+        if(splitArgs(arguments,args) == 0){
             if (pipe == 1)
                addTwoProcess();
             else
@@ -202,35 +204,33 @@ static int checkParameters(int index, int argc) {
     return -1;
 }
 
-static int splitArgs(uint8_t *buffer) {
-    char s[2] = " ";
-    char *token;
+static int splitArgs(char * arguments[], int args) {
+    
+    
     char **aux = command1;
     int *argDim = &argcP1;
-    /* get the first token */
-    token = strtok((char *)buffer, s);
-    /* walk through other tokens */
-    while (token != NULL) {
-        if (token[0] == '|' && token[1] == 0) {
-            if (!pipe) {
+    int i = 0;
+    while (i < argDim) {
+        if (strcmp((uint8_t*)arguments[i],(uint8_t*)"|") == 0) {
+            if (pipe==0) {
                 aux = command2;
                 argDim = &argcP2;
                 pipe = 1;
             } else
                 return -1;
 
-        } else if (token[0] == '&' && token[1] == 0) {
-            if (fg == 0)
+        } else if (strcmp((uint8_t*)arguments[i],(uint8_t*)"&") == 0){
+            if (fg == FOREGROUND)
                 fg = BACKGROUND;
             else
                 return -1;
-        } else if (*argDim < ARG_MAX) {
+        } else if (*argDim < ARGS) {
             aux[(*argDim)++] = token;
         } else
             return -1;
-
-        token = strtok(NULL,(char*) buffer);
+        i++;    
     }
+
     return 0;
 }
 
