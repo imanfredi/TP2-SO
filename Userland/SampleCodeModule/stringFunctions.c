@@ -4,6 +4,9 @@
 #include <stringFunctions.h>
 #include <utils.h>
 
+static int is_delim(char c, char *delim);
+
+
 int strcmp(const uint8_t *s1, const uint8_t *s2) {
     int i = 0;
     while (s1[i] != 0 && s2[i] != 0 && s1[i] == s2[i]) {
@@ -13,6 +16,20 @@ int strcmp(const uint8_t *s1, const uint8_t *s2) {
         return 0;
     }
     return s1[i] < s2[i] ? -1 : 1;
+}
+
+uint8_t * strcat(uint8_t *dest, uint8_t * src)
+{
+    int i,j;
+    
+    for (i = 0; dest[i] != '\0'; i++);
+
+    for (j = 0; src[j] != '\0'; j++,i++)
+        dest[i] = src[j];
+    
+    dest[i++] = '\0';
+    
+    return dest;
 }
 
 int strncmp(const uint8_t *s1, const uint8_t *s2, int n) {
@@ -243,4 +260,47 @@ int atoi(const uint8_t *arr) {
             res= res*10+aux;
     }
     return res*signo;
+}
+
+static int is_delim(char c, char *delim) {
+    while (*delim != '\0') {
+        if (c == *delim)
+            return TRUE;
+        delim++;
+    }
+    return FALSE;
+}
+
+
+char *strtok(char *s, char *delim) {
+    static char *p;
+    if (!s)
+        s = p;
+
+    if (!s)
+        return NULL;
+
+    while (1) {
+        if (is_delim(*s, delim)) {
+            s++;
+            continue;
+        }
+        if (*s == '\0')
+            return NULL; 
+        break;
+    }
+
+    char *ret = s;
+    while (1) {
+        if (*s == '\0') {
+            p = s; 
+            return ret;
+        }
+        if (is_delim(*s, delim)) {
+            *s = '\0';
+            p = s + 1;
+            return ret;
+        }
+        s++;
+    }
 }

@@ -38,13 +38,18 @@ static uint64_t semInfoSyscall(Register_t *registers);
 static uint64_t memInfoSyscall(Register_t *registers);
 static uint64_t changeValueSyscall(Register_t *registers);
 static int writeInStdout(uint8_t * buffer, uint8_t colour,uint64_t len);
+static uint64_t pipeOpenSyscall(Register_t *registers);
+static uint64_t closePipeSyscall(Register_t *registers);
+
+
 
 
 static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &write, &clear, &swapScreen, &readMem, &time, &information,
                                                         &temperature, &cpuModel, &getRegisters, &screenRequest, &startAppsVisual,
                                                         &newProcess, &ps, &blockProcess, &nicePriority, &killProcess, &getSeconds,
                                                         &getPid, &yieldSyscall, &mallocSyscall, &freeSyscall, &semOpenSyscall, &semCloseSyscall,
-                                                        &semPostSyscall, &semWaitSyscall, &semInfoSyscall,&memInfoSyscall,&changeValueSyscall};
+                                                        &semPostSyscall, &semWaitSyscall, &semInfoSyscall,&memInfoSyscall,&changeValueSyscall,
+                                                        &pipeOpenSyscall,&closePipeSyscall};
 
 uint64_t systemCallDispatcher(Register_t *parameters) {
     uint64_t output = -1;
@@ -206,4 +211,13 @@ static uint64_t memInfoSyscall(Register_t *registers) {  //27
 
 static uint64_t changeValueSyscall(Register_t *registers) {  //28
     return changeValue((sem_t *)registers->rdi, (int)registers->rsi);
+}
+
+static uint64_t pipeOpenSyscall(Register_t *registers) {  //29
+    return pipeOpen((char*)registers->rdi);
+}
+
+
+static uint64_t closePipeSyscall(Register_t *registers) {  //30
+    return closePipe((int)registers->rdi);
 }

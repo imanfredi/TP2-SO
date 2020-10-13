@@ -18,6 +18,9 @@ GLOBAL sem_post
 GLOBAL semInfo
 GLOBAL memInfo
 GLOBAL changeValue
+GLOBAL pipeOpen
+GLOBAL closePipe
+GLOBAL writeInPipe
 
 extern strlen
 
@@ -277,6 +280,36 @@ changeValue:
     mov rsp,rbp
     pop rbp
     ret
+
+
+pipeOpen:
+    push rbp
+    mov rbp,rsp
+    mov rax,29
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
+
+closePipe:
+    push rbp
+    mov rbp,rsp
+    mov rax,30
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
+writeInPipe:
+    push rbp
+    mov rbp,rsp
+    mov rax,31
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
 
 
 section .bss

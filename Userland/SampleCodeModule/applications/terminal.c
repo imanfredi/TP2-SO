@@ -1,20 +1,22 @@
 #include <terminal.h>
 
-static uint8_t argDim = 0;
-static uint8_t arg1[ARG_SIZE] = {0};
-static uint8_t arg2[ARG_SIZE] = {0};
-static uint8_t arg3[ARG_SIZE] = {0};
-static uint8_t arg4[ARG_SIZE] = {0};
-
-static uint8_t *arguments[ARG_MAX] = {arg1, arg2, arg3, arg4};
+static char *command1[ARG_MAX];
+static char *command2[ARG_MAX];
+static int argcP1 = 0;
+static int argcP2 = 0;
+static int fg = 0;
+static int pipe = 0;
+static int counter = 0;
 
 static void readCommand(uint8_t *buffer, uint8_t *buffDim);
-static void splitArgs(uint8_t *buffer, uint8_t *buffDim);
+static int splitArgs(uint8_t *buffer);
 static void cleanArgs();
 static void sleep(int seconds);
-static uint8_t isBackground();
 static void memToStr(uint8_t *mem, uint8_t *memStr, uint8_t bytesToConvert);
 static int loopProcess(int seconds);
+static int checkParameters(int index, int argc);
+static int getIndex(char *command);
+static void waitPipe(int pipe) ;
 
 static int time(int argc, char *argv[]);
 static int printmem(int argc, char *argv[]);
@@ -52,13 +54,13 @@ static commandsT commandVec[COMMANDS] = {
     {"loop", &loop, "Imprime su ID con un saludo cada una determinada cantidad de segundos. Modo de uso \"loop <SECONDS>\"", 2},
     {"nice", &nice, "Cambia la prioridad de un proceso. Modo de uso \"nice <PID> <PRIORITY>\"", 3},
     {"kill", &kill, "Mata el proceso dado un id", 2},
-    {"sem",&sem,"Imprime informacion de los semaforos",1},
-    {"mem",&mem,"Imprime informacion de la memoria",1},
+    {"sem", &sem, "Imprime informacion de los semaforos", 1},
+    {"mem", &mem, "Imprime informacion de la memoria", 1},
     {"runTestMM", &runTestMM, "Realiza un testeo del memory manager", 1},
     {"runTestPrio", &runTestPrio, "Realiza un testeo de las prioridades", 1},
     {"runTestProcesses", &runTestProcesses, "Realiza un testeo de los procesos", 1},
     {"runTestSync", &runTestSync, "Realiza un testo de la sincronizacion de procesos", 1},
-    {"runTestNoSync",&runTestNoSync,"Realiza un testeo de la no sincronizacion de procesos",1}};
+    {"runTestNoSync", &runTestNoSync, "Realiza un testeo de la no sincronizacion de procesos", 1}};
 
 static uint8_t registers[REGISTERS][REG_NAME] = {"RIP", "RSP", "RAX", "RBX", "RCX", "RDX", "RSI", "RBP",
                                                  "RDI", "R8 ", "R9 ", "R10", "R11", "R12", "R13", "R14", "R15"};
@@ -112,68 +114,109 @@ static int help(int argc, char *argv[]) {
 }
 
 static void readCommand(uint8_t *buffer, uint8_t *buffDim) {
-    uint8_t index = 0;
-    uint64_t fg = FOREGROUND;
-
     if (*buffDim > 0) {
-        splitArgs(buffer, buffDim);
-        while (strcmp(commandVec[index].name, arguments[0]) != 0 && index < COMMANDS) {
-            index++;
-        }
-        if (index < COMMANDS) {
-            if ((fg = isBackground()) && commandVec[index].parameters == argDim - 1) {
-                addNewProcess(commandVec[index].function, commandVec[index].parameters, (char **)arguments, fg,NULL);
-            }
+        if(splitArgs(buffer) == 0){
+            if (pipe == 1) {
+                int index1 = getIndex(command1[0]);
+                int index2 = getIndex(command2[0]);
+                if (checkParameters(index1, argcP1) == 0 && checkParameters(index2, argcP2) == 0) {
+                    if (index1 != -1 && index2 != -1) {
+                        uint8_t pipeName[10] = "p";
+                        uint8_t number[10];
+                        uintToBase(counter, number, 10);
+                        strcat((uint8_t*)pipeName, number);
+                        counter++;
+                        int aux = pipeOpen((char*)pipeName);
+                        if (aux != -1) {
+                            int fd[2] = {STDIN, aux};
+                            addNewProcess(commandVec[index1].function, argcP1, command1, fg, fd);
+                            if(fg == FOREGROUND){
+                                _block(getPid());
+                            }
+                            fd[0] = aux;
+                            fd[1] = STDOUT;
+                            addNewProcess(commandVec[index2].function, argcP2, command1, BACKGROUND, fd);           
+                            
+                            waitPipe(aux);
+                        }
+                    }
+                }
 
-            else if (commandVec[index].parameters == argDim) {
-                addNewProcess(commandVec[index].function, commandVec[index].parameters, (char **)arguments, fg,NULL);
-            }
-
-            else
-                printString((uint8_t *)"Numero erroneo de argumentos\n");
-
-        } else
-            printString((uint8_t *)"No existe el comando\n");
+            } 
+            else{
+                int index = getIndex(command1[0]);
+                if (checkParameters(index, argcP1) == 0)
+                    addNewProcess(commandVec[index].function, argcP1, command1, fg, NULL);
+                else
+                    printString((uint8_t *)"Numero erroneo de argumentos\n");
+            }  
+        }else
+            printString((uint8_t *)"Error en la entrada\n");
 
         cleanArgs();
     }
-    printString((uint8_t *)SHELL_MESSAGE);
     cleanBuffer(buffer, buffDim);
+    printString((uint8_t *)SHELL_MESSAGE);
 }
 
-static uint8_t isBackground() {
-    for (int i = 0; i < argDim; i++) {
-        if (strcmp(arguments[i], (uint8_t *)"&") == 0) {
-            return BACKGROUND;
-        }
-    }
-    return FOREGROUND;
+static void waitPipe(int pipe){
+    writeInPipe(pipe,-1);
+    closePipe(pipe);
 }
 
-static void splitArgs(uint8_t *buffer, uint8_t *buffDim) {
-    uint8_t j = 0, i = 0;
-    while (i < *buffDim && argDim < ARG_MAX) {  //mientras i < a la dimension del buffer y la cantidad de argumentos sea menor a los que permito
 
-        while (buffer[i] != 0 && buffer[i] != ' ' && j < ARG_SIZE - 1) {  // j < a la cantidad de letras que permito por argumento
-            arguments[argDim][j++] = buffer[i++];
-        }
-        arguments[argDim++][j] = 0;  //Pongo el 0 al final
-        j = 0;
-        while (buffer[i] != 0 && buffer[i] == ' ') {  //salteo los espacios intermedios
-            i++;
-        }
+
+static int getIndex(char *command) {
+    int index = 0;
+    while (strcmp(commandVec[index].name,(uint8_t*) command) != 0 && index < COMMANDS)
+        index++;
+    if (index >= COMMANDS)
+        index = -1;
+
+    return index;
+}
+
+static int checkParameters(int index, int argc) {
+    return commandVec[index].parameters == argc;
+}
+
+static int splitArgs(uint8_t *buffer) {
+    char s[2] = " ";
+    char *token;
+    char **aux = command1;
+    int *argDim = &argcP1;
+    /* get the first token */
+    token = strtok((char *)buffer, s);
+    /* walk through other tokens */
+    while (token != NULL) {
+        if (token[0] == '|' && token[1] == 0) {
+            if (!pipe) {
+                aux = command2;
+                argDim = &argcP2;
+                pipe = 1;
+            } else
+                return -1;
+
+        } else if (token[0] == '&' && token[1] == 0) {
+            if (fg == 0)
+                fg = BACKGROUND;
+            else
+                return -1;
+        } else if (*argDim < ARG_MAX) {
+            aux[(*argDim)++] = token;
+        } else
+            return -1;
+
+        token = strtok(NULL,(char*) buffer);
     }
+    return 0;
 }
 
 static void cleanArgs() {
-    uint8_t i = 0, j = 0;
-    while (i < argDim) {
-        while (arguments[i][j] != 0) {
-            arguments[i][j++] = 0;
-        }
-        i++;
-    }
-    argDim = 0;
+    fg=FOREGROUND;
+    argcP1 = 0;
+    argcP2 = 0;
+    pipe = 0;
 }
 
 int time(int argc, char *argv[]) {
@@ -269,9 +312,7 @@ static int loopProcess(int seconds) {
 
 static void sleep(int seconds) {
     int totalTime = getSecondsElapsed() + seconds;
-
-    while (getSecondsElapsed() <= totalTime)
-        ;
+    while (getSecondsElapsed() <= totalTime);
 }
 
 static int nice(int argc, char *argv[]) {
@@ -327,14 +368,13 @@ static int temperature(int argc, char *argv[]) {
     return 0;
 }
 
-
-static int mem(int argc, char *argv[]){
+static int mem(int argc, char *argv[]) {
     putChar('\n');
     memInfo();
     putChar('\n');
     return 0;
 }
-static int sem(int argc, char *argv[]){
+static int sem(int argc, char *argv[]) {
     putChar('\n');
     semInfo();
     putChar('\n');

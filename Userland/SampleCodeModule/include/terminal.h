@@ -16,8 +16,7 @@
 #define FALSE 0
 #define TRUE 1
 #define DESC_SIZE 100
-#define ARG_MAX 4
-#define ARG_SIZE 18
+#define ARG_MAX 5
 #define TOREAD 32
 #define REGISTERS 17
 #define REG_NAME 4

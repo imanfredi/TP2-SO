@@ -33,12 +33,12 @@ int initPipes() {
     
     size = 0;
     dimPipes = PIPES_MAX;
-    if(pipe(STDIN_NAME) == -1 || pipe(STDOUT_NAME) == -1)
+    if(pipeOpen(STDIN_NAME) == -1 || pipeOpen(STDOUT_NAME) == -1)
         return -1;
     return 0;
 }
 
-int pipe(char* name) {
+int pipeOpen(char* name) {
     sem_wait(creatingPipe);
     int firstInactive = -1;
 
@@ -79,7 +79,7 @@ int pipe(char* name) {
     return firstInactive;
 }
 
-int close(int fd) {
+int closePipe(int fd) {
     sem_wait(closingPipe);
 
     pipeArray[fd].processUsing--;
@@ -125,3 +125,21 @@ int writePipeString(int fd, char* buffer) {
         writePipe(fd, buffer[i]);
     return i;
 }
+/*
+int pipeInfo(){
+    
+    for (int i = 0; i < dimPipes; i++){
+        if(pipeArray[i].isActive){
+           // dumpPipe(pipeArray[i]);
+            newLineScreen();
+        }
+    }
+
+    return 0;
+    
+}
+
+void dumpPipe(pipe_t pipe){
+    pipe.semWrite
+}
+*/

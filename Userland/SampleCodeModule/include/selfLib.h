@@ -3,7 +3,10 @@
 
 #define FOREGROUND 0
 #define NULL 0
+#define STDIN 0
+#define STDOUT 1
 #define BACKGROUND 1
+
 
 #include <stdint.h>
 
@@ -26,6 +29,9 @@ int sem_wait(void * sem);
 int sem_post(void * sem);
 void memInfo();
 void semInfo();
+int pipeOpen(char* name);
+int closePipe(int fd);
 int changeValue(void * sem,int value);
+int writeInPipe(int fd,int endOfFile);
 
 #endif
