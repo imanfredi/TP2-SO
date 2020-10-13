@@ -4,8 +4,6 @@
 #include <stringFunctions.h>
 #include <utils.h>
 
-static int is_delim(char c, char *delim);
-
 
 int strcmp(const uint8_t *s1, const uint8_t *s2) {
     int i = 0;

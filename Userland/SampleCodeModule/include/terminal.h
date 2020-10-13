@@ -17,7 +17,7 @@
 #define TRUE 1
 #define DESC_SIZE 100
 #define MAX_ARGS 15
-#define ARG 5
+#define ARG_PROCESS 5
 #define TOREAD 32
 #define REGISTERS 17
 #define REG_NAME 4
