@@ -426,3 +426,47 @@ static int runTestNoSync(int argc, char *argv[]) {
     test_no_sync();
     return 0;
 }
+
+static int cat(int argc, char *argv[]){
+    
+    char c;
+
+    while((c = getChar()) != EOF)
+        putChar(c);
+
+    return 0;
+}
+
+static void wc(int argc, char *argv[]){
+    uint64_t lines = 0;
+    char c;
+
+    while((c = getChar()) != EOF){
+        if(c == '\n')
+            lines++;
+    }
+    char number[10];
+    uintToBase(lines, number, 10);
+    printString("Lines: ");
+    printString(number);
+}
+
+static int filter(int argc, char *argv[]){
+    
+    char c;
+    while((c = getChar()) != EOF){
+        if(!isVowel(c))
+            putchar(c);
+    }
+}
+
+int isVowel(char c){
+    char minus[] = {'a', 'e', 'i', 'o', 'u'};
+    char mayus[] = {'A', 'E', 'I', 'O', 'U'};
+
+	for(int i = 0; i < 5; i++){
+		if(c == minus[i] || c == mayus[i])
+			return 1;
+	}
+	return 0;
+}
