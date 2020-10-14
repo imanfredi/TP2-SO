@@ -3,7 +3,7 @@
 #include <lib.h>
 #include <stdint.h>
 #define KEYS 59
-#define BUFFER_KEYBOARD 20
+#define BUFFER_KEYBOARD 30
 #define PRESSED 1
 #define RELEASED 2
 #define ERRROR -1
@@ -25,7 +25,8 @@
 uint8_t hasKey();
 uint8_t getKey();
 void activateKeyBoard(uint64_t * stackPointer);
-uint8_t getCharacter();
+char getCharacter();
 uint64_t getRegisters();
+int initKeyboard();
 
 #endif

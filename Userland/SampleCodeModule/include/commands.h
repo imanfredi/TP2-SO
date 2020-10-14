@@ -22,6 +22,8 @@ void _nice(uint64_t pid, uint64_t priority);
 
 int _block(uint64_t pid);
 
+int _unblock(uint64_t pid);
+
 void _yield();
 
 int _kill(uint64_t pid);

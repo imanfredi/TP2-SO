@@ -46,6 +46,8 @@ static int sem(int argc, char *argv[]);
 static int filter(int argc, char *argv[]);
 static int cat(int argc, char *argv[]);
 static int wc(int argc, char *argv[]);
+static int unblock(int argc, char *argv[]);
+
 
 
 static commandsT commandVec[COMMANDS] = {
@@ -71,7 +73,8 @@ static commandsT commandVec[COMMANDS] = {
     {"runTestNoSync", &runTestNoSync, "Realiza un testeo de la no sincronizacion de procesos", 1},
     {"filter", &filter, "Filtra las vocales del input", 1},
     {"wc", &wc, "Cuenta la cantidad de lineas de input", 1},
-    {"cat", &cat, "Imprime el stdin tal como la recibe", 1} };
+    {"cat", &cat, "Imprime el stdin tal como la recibe", 1},
+    {"unblock", &unblock, "Desbloquea el proceso dado su id. Modo de uso \"block <PID>\"", 2} };
 
 static uint8_t registers[REGISTERS][REG_NAME] = {"RIP", "RSP", "RAX", "RBX", "RCX", "RDX", "RSI", "RBP",
                                                  "RDI", "R8 ", "R9 ", "R10", "R11", "R12", "R13", "R14", "R15"};
@@ -145,7 +148,7 @@ static void addOneProcess(){
         printString((uint8_t *)"Comando invalido\n");
     else{
         if (checkParameters(index, argcP1) != -1)
-        addNewProcess(commandVec[index].function, argcP1, command1, fg, NULL);
+            addNewProcess(commandVec[index].function, argcP1, command1, fg, NULL);
         else
         printString((uint8_t *)"Numero erroneo de argumentos\n");
     }
@@ -165,11 +168,11 @@ static void addTwoProcess(){
             counter++;
             int aux = pipeOpen((char*)pipeName);
             if (aux != -1) {
-                    int fd[2] = {STDIN, aux};
-                    int p1 = addNewProcess(commandVec[index1].function, argcP1, command1, fg, fd);
-                    fd[0] = aux;
-                    fd[1] = STDOUT;
+                    int fd[2] = {aux, STDOUT};
                     int p2 = addNewProcess(commandVec[index2].function, argcP2, command2, BACKGROUND, fd); 
+                    fd[0] = STDIN;
+                    fd[1] = aux;
+                    int p1 = addNewProcess(commandVec[index1].function, argcP1, command1, fg, fd);
                     waitPipe(aux,p1,p2);
                 }
                 else
@@ -207,9 +210,8 @@ static int getIndex(char *command) {
 }
 
 static int checkParameters(int index, int argc) {
-    
-    if(index != -1)
-        return commandVec[index].parameters == argc;
+    if(index != -1 && commandVec[index].parameters == argc)
+        return 0;
     return -1;
 }
 
@@ -356,6 +358,11 @@ static int block(int argc, char *argv[]) {
     return 0;
 }
 
+static int unblock(int argc, char *argv[]) {
+    _unblock(atoi((uint8_t *)argv[1]));
+    return 0;
+}
+
 static int kill(int argc, char *argv[]) {
     if (argc < 2)
         return -1;
@@ -440,10 +447,10 @@ static int runTestNoSync(int argc, char *argv[]) {
 static int cat(int argc, char *argv[]){
     
     int c;
-
-    while((c = getChar()) != EOF)
-        putChar((char)c);
     
+    while ((c = getChar()) != EOF){
+        putChar((char)c);
+    }
 
     return 0;
 }
@@ -452,7 +459,7 @@ static int wc(int argc, char *argv[]){
     uint64_t lines = 0;
     int c;
 
-    while((c = getChar()) != EOF){
+    while ((c = getChar()) != EOF){
         if((char)c == '\n')
             lines++;
     }
@@ -467,7 +474,7 @@ static int wc(int argc, char *argv[]){
 static int filter(int argc, char *argv[]){
     
     int c;
-    while((c = getChar()) != EOF){
+     while ((c = getChar()) != EOF){
         if(!isVowel((char)c))
             putChar((char)c);
     }

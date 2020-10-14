@@ -9,6 +9,7 @@
 #include <systemCallDispatcher.h>
 #include <time.h>
 #include <pipe.h>
+#include <stringFunctionsKernel.h>
 
 /*Se declara el tipo que devuelven y luego lo que reciben. Si el parentesis esta vacio, significa que recibe cualquier cosa*/
 static uint64_t writeSyscall(Register_t *registers);
@@ -42,6 +43,8 @@ static uint64_t pipeOpenSyscall(Register_t *registers);
 static uint64_t closePipeSyscall(Register_t *registers);
 static uint64_t writeInPipeSyscall(Register_t * registers);
 static uint64_t waitSyscall(Register_t * registers);
+static uint64_t unblockProcess(Register_t *registers);
+
 
 
 static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &writeSyscall, &clear, &swapScreen, &readMem, &time, &information,
@@ -49,7 +52,7 @@ static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &writeSyscall, &c
                                                         &newProcess, &ps, &blockProcess, &nicePriority, &killProcess, &getSeconds,
                                                         &getPid, &yieldSyscall, &mallocSyscall, &freeSyscall, &semOpenSyscall, &semCloseSyscall,
                                                         &semPostSyscall, &semWaitSyscall, &semInfoSyscall,&memInfoSyscall,&changeValueSyscall,
-                                                        &pipeOpenSyscall,&closePipeSyscall,&writeInPipeSyscall,&waitSyscall};
+                                                        &pipeOpenSyscall,&closePipeSyscall,&writeInPipeSyscall,&waitSyscall,&unblockProcess};
 
 uint64_t systemCallDispatcher(Register_t *parameters) {
     uint64_t output = -1;
@@ -63,12 +66,14 @@ uint64_t systemCallDispatcher(Register_t *parameters) {
 Funcion getChar:
 */
 static uint64_t read(Register_t *registers) {
-    int aux = getCurrentStdin();
-
+    int aux =  getCurrentStdin();
     if(aux == STDIN)
         return getCharacter();
+  
+
     else
         return readPipe(aux);
+
 }
 
 /*
@@ -221,4 +226,8 @@ static uint64_t writeInPipeSyscall(Register_t * registers){ //31
 
 static uint64_t waitSyscall(Register_t * registers){//32
     return wait(registers->rdi);
+}
+
+static uint64_t unblockProcess(Register_t *registers) { //33
+    return unblock((uint64_t)registers->rdi);
 }

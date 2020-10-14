@@ -72,11 +72,11 @@ uint64_t block(uint64_t pid);
 void finishScheduler();
 uint64_t listProcess();
 uint64_t schedule(uint64_t rsp);
-uint64_t block(uint64_t pid);
 uint64_t getCurrentPid();
 uint64_t yield();
 int getCurrentStdin();
 int getCurrentStdout();
 int wait(uint64_t pid);
+uint64_t unblock(uint64_t pid);
 
 #endif

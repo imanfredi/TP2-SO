@@ -71,7 +71,7 @@ int test_processes() {
             // Randomly unblocks processes
             for (rq = 0; rq < MAX_PROCESSES; rq++)
                 if (p_rqs[rq].state == BLOCKED && GetUniform(2) % 2) {
-                    if (_block(p_rqs[rq].pid) == -1) {                            // TODO: Port this as required
+                    if (_unblock(p_rqs[rq].pid) == -1) {                            // TODO: Port this as required
                         printf("Error unblocking process %d \n", p_rqs[rq].pid);  // TODO: Port this as required
                         return 1;
                     }

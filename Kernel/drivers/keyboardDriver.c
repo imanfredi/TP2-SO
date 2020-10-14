@@ -1,5 +1,6 @@
 #include <keyboardDriver.h>
-
+#include <semaphore.h>
+#include <adminScreen.h>
 
 static uint8_t lshift = 0, rshift = 0, blqMayus = 0, ctrl = 0;
 static uint8_t action(uint8_t scanCode);
@@ -10,6 +11,7 @@ static uint8_t buffer[BUFFER_KEYBOARD] = {0};
 static uint8_t size = 0;
 static void updateRegisters(uint64_t * stackPointer); 
 static uint64_t registerValues[REGISTERS]={0};
+static void * sem;
 static const char pressCodes[KEYS][2] =
     {{0, 0}, {0, 0}, {'1', '!'}, {'2', '@'}, {'3', '#'},  //Es una tecla vacia y despues el esc
      {'4', '$'},{'5', '%'},{'6', '^'},{'7', '&'},{'8', '*'},
@@ -24,6 +26,12 @@ static const char pressCodes[KEYS][2] =
      {'m', 'M'},{',', '<'},{'.', '>'},{'/', '?'},{0, 0},  //RIGHT_SHIFT
      {'*', '*'},{0, 0},{' ', ' '},{0, 0}};  //ALT_IZQ Y BLOQS_MAYUS
 
+
+int initKeyboard(){
+    if( (sem = sem_open("Keyboard",0)) == 0)
+        return -1;
+    return 0;
+}
 
 void activateKeyBoard(uint64_t * stackPointer)
 {
@@ -118,15 +126,15 @@ static uint8_t isLetter(uint8_t character)
 static void addBuffer(uint8_t c){
     buffer[size%BUFFER_KEYBOARD] = c;
     size++;
+    sem_post(sem);
 }
 
-uint8_t getCharacter(){
+char getCharacter(){
+    sem_wait(sem);
     
     uint8_t c = buffer[0];
-    if(size!=0){
-        memcpy(buffer,buffer+1,size);
-        size--;
-    }
+    memcpy(buffer,buffer+1,size);
+    size--;
     return c;
 }
 

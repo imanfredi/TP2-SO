@@ -3,6 +3,7 @@
 #include <interrupts.h>
 #include <lib.h>
 #include <memoryManager.h>
+#include <keyboardDriver.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <scheduler.h>
@@ -56,6 +57,7 @@ int main() {
     initScreen();
     initializeScheduler();
     initPipes();
+    initKeyboard();
     char *argv[] = {"./sample"};
     addNewProcess(sampleCodeModuleAddress, 1, argv, FOREGROUND,NULL);
     initExceptions(sampleCodeModuleAddress, getInitialSP());

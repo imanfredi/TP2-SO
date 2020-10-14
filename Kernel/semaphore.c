@@ -34,6 +34,7 @@ sem_t* sem_open(char* name, int value) {
 
     while (aux) {
         if (strcmp((uint8_t*)aux->name, (uint8_t*)name) == 0) {
+            aux->proccessCount++;
             leaveCR(&creatingSem);
             return aux;
         }
@@ -50,6 +51,7 @@ sem_t* sem_open(char* name, int value) {
     aux->lastWaiting = NULL;
     aux->lock = 0;
     aux->value = value;
+    aux->proccessCount=1;
     strncpy((uint8_t*)aux->name, (uint8_t*)name, MAX_LEN - 1);
     sem_t* second = semList->first;
     semList->first = aux;
@@ -92,9 +94,7 @@ int sem_wait(sem_t* sem) {
     sem->value--;
     if (sem->value < 0) {
         enqueueBlock(sem, getCurrentPid());
-
         leaveCR(&sem->lock);
-
         block(getCurrentPid());
     } else {
         leaveCR(&sem->lock);
@@ -107,7 +107,7 @@ int sem_post(sem_t* sem) {
     sem->value++;
     if (sem->firstWaiting != NULL) {
         int pid = dequeueBlock(sem);
-        block(pid);  //unblock
+        unblock(pid);  //unblock
     }
 
     leaveCR(&sem->lock);

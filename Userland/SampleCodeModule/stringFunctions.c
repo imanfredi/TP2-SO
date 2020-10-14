@@ -243,6 +243,7 @@ void ftoa(double value, uint8_t *str, uint8_t precision) {
     i += uintToBaseWithLength(intPart, str + i, 10, precision + 1);
 }
 
+
 int atoi(const uint8_t *arr) {
     int signo = 1, aux, res=0, i = 0;
 

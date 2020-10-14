@@ -8,6 +8,7 @@ GLOBAL _inforeg
 GLOBAL _ps
 GLOBAL _nice
 GLOBAL _block
+GLOBAL _unblock
 GLOBAL _kill
 GLOBAL _yield
 section .text
@@ -140,6 +141,16 @@ _yield:
     push rbp 
     mov rbp,rsp
     mov rax,19
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
+_unblock:
+
+    push rbp 
+    mov rbp,rsp
+    mov rax,33
     int 80h
     mov rsp,rbp
     pop rbp

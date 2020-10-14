@@ -71,6 +71,23 @@ int strlen(const uint8_t *s)
 
 }
 
+int atoi(const uint8_t *arr) {
+    int signo = 1, aux, res=0, i = 0;
+
+    if (arr[0] == '-') {
+        signo = -1;
+        i++;
+    }
+    for (; arr[i] != 0; i++) {
+        aux = toNumber(arr[i]);
+        if (aux == -1) {
+            return aux;
+        } else
+            res= res*10+aux;
+    }
+    return res*signo;
+}
+
 
 uint32_t uintToBase(uint64_t value, uint8_t *buffer, uint32_t base)
 {

@@ -123,6 +123,7 @@ void initPCB(processNode *node, char *name, int (*function)(int, char **), uint6
 No debería encolar lo que tiene, solo sacar el proceso que esta en la cola
 Desencolar el primero, encolar el que viene. Hacer el swapeo de rsp. Actualizar rsp, guardarlo en su estructura*/
 uint64_t schedule(uint64_t rsp) {
+
     //encolar el que viene
     if (currentProcess == NULL) {  //si no hay ningun proceso corriendo. Es la primera vez
         if (!isEmpty())
@@ -296,10 +297,7 @@ uint64_t block(uint64_t pid) {
         } else {
             processNode *current = findNode(pid);
             if (current != NULL) {
-                if (current->process.state == BLOCKED) {
-                    processQueue->ready++;
-                    current->process.state = READY;
-                } else if (current->process.state == READY) {
+                if (current->process.state == READY) {
                     processQueue->ready--;
                     current->process.state = BLOCKED;
                     current->process.slotsLeft = 0;
@@ -311,13 +309,29 @@ uint64_t block(uint64_t pid) {
     return -1;
 }
 
+
+uint64_t unblock(uint64_t pid) {
+
+    if (pid > INIT_PROCESS) {
+        processNode *current = findNode(pid);
+        if (current != NULL) {
+            if (current->process.state == BLOCKED) {
+                processQueue->ready++;
+                current->process.state = READY;
+            }
+            return 0;
+        }
+    }
+    return -1;
+}
+
 uint64_t kill(uint64_t pid) {
     if (pid == currentProcess->process.pid) {
         currentProcess->process.state = KILLED;
         currentProcess->process.slotsLeft = 0;
         processQueue->ready--;
         if (currentProcess->process.execution == FOREGROUND){
-            block(currentProcess->process.ppid);
+            unblock(currentProcess->process.ppid);
         }
         callTimerTick();
         return 0;
@@ -328,7 +342,7 @@ uint64_t kill(uint64_t pid) {
         return -1;
 
     if (node->process.execution == FOREGROUND) {
-        block(node->process.ppid);  //desbloqueo a mi padre
+        unblock(node->process.ppid);  //desbloqueo a mi padre
     }
 
     if (node->process.state == READY) {
@@ -384,7 +398,7 @@ int wait(uint64_t pid){
     processNode *  node =findNode(pid);
     if(node != NULL){
         node->process.execution = FOREGROUND;
-        block(node->process.ppid);
+        block(currentProcess->process.pid); //bloqueo a la shell hasta que termina el proceso hijo
     }
     return 0;
 }

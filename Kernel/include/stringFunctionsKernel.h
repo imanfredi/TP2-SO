@@ -14,5 +14,6 @@ int printf(const char *format, ...);
 uint64_t stringHexaToNumber(uint8_t *string);
 uint32_t uintToBaseWithLength(uint64_t value, uint8_t *buffer, uint32_t base, uint8_t size);
 uint8_t *strncpy(uint8_t dest[], const uint8_t source[], uint64_t n);
+int atoi(const uint8_t *arr);
 
 #endif
