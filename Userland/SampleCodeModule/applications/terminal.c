@@ -47,6 +47,7 @@ static int filter(int argc, char *argv[]);
 static int cat(int argc, char *argv[]);
 static int wc(int argc, char *argv[]);
 static int unblock(int argc, char *argv[]);
+static int pipeInfo(int argc, char*argv[]);
 
 
 
@@ -74,7 +75,8 @@ static commandsT commandVec[COMMANDS] = {
     {"filter", &filter, "Filtra las vocales del input", 1},
     {"wc", &wc, "Cuenta la cantidad de lineas de input", 1},
     {"cat", &cat, "Imprime el stdin tal como la recibe", 1},
-    {"unblock", &unblock, "Desbloquea el proceso dado su id. Modo de uso \"block <PID>\"", 2} };
+    {"unblock", &unblock, "Desbloquea el proceso dado su id. Modo de uso \"block <PID>\"", 2},
+    {"pipe", &pipeInfo, "Imprime informacion de los pipes", 1} };
 
 static uint8_t registers[REGISTERS][REG_NAME] = {"RIP", "RSP", "RAX", "RBX", "RCX", "RDX", "RSI", "RBP",
                                                  "RDI", "R8 ", "R9 ", "R10", "R11", "R12", "R13", "R14", "R15"};
@@ -128,10 +130,14 @@ static void readCommand(uint8_t *buffer, uint8_t *buffDim) {
     if (*buffDim > 0) {
         int args = strtok(' ',arguments,(char*)buffer,MAX_ARGS);
         if(splitArgs((char**)arguments,args) == 0){
-            if (pipe == 1)
+            if (pipe == 1){
+
                addTwoProcess();
-            else
+            }
+            else{
+
                 addOneProcess();
+            }
         }else
             printString((uint8_t *)"Error en la entrada\n");
 
@@ -170,9 +176,12 @@ static void addTwoProcess(){
             if (aux != -1) {
                     int fd[2] = {aux, STDOUT};
                     int p2 = addNewProcess(commandVec[index2].function, argcP2, command2, BACKGROUND, fd); 
+                    
                     fd[0] = STDIN;
                     fd[1] = aux;
+
                     int p1 = addNewProcess(commandVec[index1].function, argcP1, command1, fg, fd);
+                    
                     waitPipe(aux,p1,p2);
                 }
                 else
@@ -479,5 +488,10 @@ static int filter(int argc, char *argv[]){
             putChar((char)c);
     }
 
+    return 0;
+}
+
+static int pipeInfo(int argc, char*argv[]){
+    _pipeInfo();
     return 0;
 }

@@ -9,6 +9,7 @@ GLOBAL _ps
 GLOBAL _nice
 GLOBAL _block
 GLOBAL _unblock
+GLOBAL _pipeInfo
 GLOBAL _kill
 GLOBAL _yield
 section .text
@@ -151,6 +152,15 @@ _unblock:
     push rbp 
     mov rbp,rsp
     mov rax,33
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
+
+_pipeInfo:
+    push rbp 
+    mov rbp,rsp
+    mov rax,34
     int 80h
     mov rsp,rbp
     pop rbp

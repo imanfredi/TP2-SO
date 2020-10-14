@@ -44,7 +44,7 @@ static uint64_t closePipeSyscall(Register_t *registers);
 static uint64_t writeInPipeSyscall(Register_t * registers);
 static uint64_t waitSyscall(Register_t * registers);
 static uint64_t unblockProcess(Register_t *registers);
-
+static uint64_t pipeInfoSyscall(Register_t * registers);
 
 
 static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &writeSyscall, &clear, &swapScreen, &readMem, &time, &information,
@@ -52,7 +52,8 @@ static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &writeSyscall, &c
                                                         &newProcess, &ps, &blockProcess, &nicePriority, &killProcess, &getSeconds,
                                                         &getPid, &yieldSyscall, &mallocSyscall, &freeSyscall, &semOpenSyscall, &semCloseSyscall,
                                                         &semPostSyscall, &semWaitSyscall, &semInfoSyscall,&memInfoSyscall,&changeValueSyscall,
-                                                        &pipeOpenSyscall,&closePipeSyscall,&writeInPipeSyscall,&waitSyscall,&unblockProcess};
+                                                        &pipeOpenSyscall,&closePipeSyscall,&writeInPipeSyscall,&waitSyscall,&unblockProcess,
+                                                        &pipeInfoSyscall};
 
 uint64_t systemCallDispatcher(Register_t *parameters) {
     uint64_t output = -1;
@@ -69,8 +70,6 @@ static uint64_t read(Register_t *registers) {
     int aux =  getCurrentStdin();
     if(aux == STDIN)
         return getCharacter();
-  
-
     else
         return readPipe(aux);
 
@@ -230,4 +229,9 @@ static uint64_t waitSyscall(Register_t * registers){//32
 
 static uint64_t unblockProcess(Register_t *registers) { //33
     return unblock((uint64_t)registers->rdi);
+}
+
+static uint64_t pipeInfoSyscall(Register_t * registers){ //34
+    return pipeInfo();
+
 }

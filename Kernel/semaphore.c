@@ -31,7 +31,7 @@ sem_t* sem_open(char* name, int value) {
     enterCR(&creatingSem);
 
     sem_t* aux = semList->first;
-
+    
     while (aux) {
         if (strcmp((uint8_t*)aux->name, (uint8_t*)name) == 0) {
             aux->proccessCount++;
@@ -40,7 +40,7 @@ sem_t* sem_open(char* name, int value) {
         }
         aux = aux->next;
     }
-
+    
     aux = malloc2(sizeof(sem_t));
     if (aux == NULL) {
         leaveCR(&creatingSem);
@@ -58,7 +58,7 @@ sem_t* sem_open(char* name, int value) {
     aux->next = second;
 
     leaveCR(&creatingSem);
-
+    
     return aux;
 }
 /*Si yo estoy bloqueando despierto al siguiente*/
@@ -74,8 +74,11 @@ int sem_close(sem_t* sem) {
             sem->proccessCount--;
 
             if (sem->proccessCount == 0) {
-                prev->next = curr->next;
-                free2(sem);
+                if(prev == curr)
+                    semList->first = curr->next;
+                else
+                    prev->next = curr->next;
+                free2(curr);
             }
             leaveCR(&closingSem);
             return 0;
@@ -164,7 +167,7 @@ int semInfo(){
 void dumpSem(sem_t * sem){
     enterCR(&sem->lock);
     char * space="    ";
-    uint8_t number[10];
+    uint8_t number[30];
     int len;
     printStringScreen((uint8_t*)sem->name,strlen((uint8_t*)sem->name),BLACK_WHITE);
     printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
@@ -175,10 +178,8 @@ void dumpSem(sem_t * sem){
     
     dumpProcessBlocked(sem->firstWaiting);
     
-
     printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
 
-    
     leaveCR(&sem->lock);
 }
 

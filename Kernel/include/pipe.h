@@ -13,4 +13,5 @@ int closePipe(int fd);
 int writePipeString(char* buffer, int len, int fd);
 int writePipe(int fd, char c);
 char readPipe(int fd);
+int pipeInfo();
 #endif

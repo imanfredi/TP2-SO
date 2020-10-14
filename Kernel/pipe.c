@@ -22,6 +22,8 @@ static void* closingPipe;
 static pipe_t pipeArray[PIPES_MAX];
 static int size;
 static int dimPipes;
+static void dumpPipe(pipe_t pipe);
+
 
 int initPipes() {
 
@@ -38,15 +40,17 @@ int initPipes() {
     return 0;
 }
 
-int pipeOpen(char* name) {
+int pipeOpen(char* name) {    
+    
     sem_wait(creatingPipe);
+    
     int firstInactive = -1;
     
-
     for (int i = 0; i < dimPipes; i++) {
         if (pipeArray[i].isActive == 1){
             if(strcmp((uint8_t*)pipeArray[i].name,(uint8_t*) name) == 0) {
                 pipeArray[i].processUsing++;
+                
                 sem_post(creatingPipe);
                 return i;
             }
@@ -60,6 +64,7 @@ int pipeOpen(char* name) {
         sem_post(creatingPipe);
         return -1;
     }
+
     pipeArray[firstInactive].dim = SIZE;
     pipeArray[firstInactive].idxWrite = 0;
     pipeArray[firstInactive].idxRead = 0;
@@ -72,29 +77,47 @@ int pipeOpen(char* name) {
     buffer[len + 1] = 0;
 
     buffer[len] = 'R';
-    if ((pipeArray[firstInactive].semRead = sem_open(buffer, 0)) == NULL)
+
+
+    if ((pipeArray[firstInactive].semRead = sem_open(buffer, 0)) == NULL){
+        
+        sem_post(creatingPipe);
         return -1;
+    }
+
 
     buffer[len] = 'W';
-    if ((pipeArray[firstInactive].semWrite = sem_open(buffer, pipeArray[firstInactive].dim)) == NULL)  //le pongo la cantidad que entran en el buffer que es la cantidad maxima que puede escribir antes de bloquearse
+    if ((pipeArray[firstInactive].semWrite = sem_open(buffer, pipeArray[firstInactive].dim)) == NULL){ //le pongo la cantidad que entran en el buffer que es la cantidad maxima que puede escribir antes de bloquearse
+        
+        sem_post(creatingPipe);
         return -1;
-
+    }  
     strncpy((uint8_t*)pipeArray[firstInactive].name, (uint8_t*)name, NAME_MAX - 1);
+    
     sem_post(creatingPipe);
+
     return firstInactive;
 }
 
 int closePipe(int fd) {
     sem_wait(closingPipe);
 
+    
+
     pipeArray[fd].processUsing--;
     if (pipeArray[fd].processUsing <= 0) {
         pipeArray[fd].isActive = 0;
-        if (sem_close(pipeArray[fd].semRead) == -1)
+        if (sem_close(pipeArray[fd].semRead) == -1){
+            sem_post(closingPipe);
             return -1;
-        if (sem_close(pipeArray[fd].semWrite) == -1)
+        }
+        if (sem_close(pipeArray[fd].semWrite) == -1){
+            
+            sem_post(closingPipe);
             return -1;
+        }
     }
+
 
     sem_post(closingPipe);
     return 0;
@@ -130,13 +153,18 @@ int writePipeString(char* buffer, int len, int fd){
         writePipe(fd, buffer[i]);
     return i;
 }
-/*
+
 int pipeInfo(){
     
+    uint8_t message[] = "Nombre pipe:    Semaforos involucrados:    Activo    Procesos usando";
+
+    printStringScreen(message,strlen(message),BLACK_WHITE);
+    newLineScreen();
+
     for (int i = 0; i < dimPipes; i++){
         if(pipeArray[i].isActive){
-           // dumpPipe(pipeArray[i]);
-            newLineScreen();
+           dumpPipe(pipeArray[i]);
+           newLineScreen();
         }
     }
 
@@ -144,7 +172,27 @@ int pipeInfo(){
     
 }
 
-void dumpPipe(pipe_t pipe){
-    pipe.semWrite
+static void dumpPipe(pipe_t pipe){
+
+    static char * space="    ";
+    uint8_t number[10];
+    
+    printStringScreen((uint8_t*)pipe.name,strlen((uint8_t*)pipe.name),BLACK_WHITE);
+    printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
+
+    dumpSem(pipe.semRead);
+    printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
+
+    dumpSem(pipe.semWrite);
+    printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
+
+    uintToBase(pipe.isActive,number,10);
+    printStringScreen(number,strlen(number),BLACK_WHITE);
+    printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
+    
+    uintToBase(pipe.processUsing,number,10);
+    printStringScreen(number,strlen(number),BLACK_WHITE);
+    printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
+    
+
 }
-*/

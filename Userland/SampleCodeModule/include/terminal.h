@@ -12,7 +12,7 @@
 #define EOF -1
 #define BUFFERSIZE 80
 #define CLEAR_SCREEN_CODE 252
-#define COMMANDS 24
+#define COMMANDS 25
 #define SIZE 25
 #define FALSE 0
 #define TRUE 1

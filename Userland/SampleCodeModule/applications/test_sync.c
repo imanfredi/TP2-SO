@@ -57,8 +57,8 @@ int test_sync() {
     
     printf("CREATING PROCESSES...(WITH SEM)\n");
     
-    char * argv1[]={"inc","1","1","100"};
-    char * argv2[]={"inc","1","-1","100"};
+    char * argv1[]={"inc","1","1","100000"};
+    char * argv2[]={"inc","1","-1","100000"};
 
 
     for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {

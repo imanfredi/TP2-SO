@@ -17,7 +17,7 @@ typedef struct semNode {
     process_t * firstWaiting;
     process_t * lastWaiting;
     char name[MAX_LEN];
-    int value;
+    long value;
     struct semNode * next;
     int lock;
     int proccessCount;
