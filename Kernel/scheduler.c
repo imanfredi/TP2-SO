@@ -325,6 +325,12 @@ uint64_t unblock(uint64_t pid) {
     return -1;
 }
 
+void killForeground(){
+    if(currentProcess->process.execution == FOREGROUND){
+        kill(currentProcess->process.pid);
+    }
+}
+
 uint64_t kill(uint64_t pid) {
     if (pid == currentProcess->process.pid) {
         currentProcess->process.state = KILLED;

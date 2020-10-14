@@ -1,5 +1,6 @@
 #include <keyboardDriver.h>
 #include <semaphore.h>
+#include <scheduler.h>
 #include <adminScreen.h>
 
 static uint8_t lshift = 0, rshift = 0, blqMayus = 0, ctrl = 0;
@@ -75,6 +76,10 @@ void activateKeyBoard(uint64_t * stackPointer)
                         else if(pressCodes[key][0] == 'r'){
                             updateRegisters(stackPointer);
                         }
+                        else if(pressCodes[key][0] == 'z' || pressCodes[key][0] == 'Z'){
+                            killForeground();
+                        }
+
                     }
                     else if(secondKey(pressCodes[key][0])){
                         addBuffer(pressCodes[key][1]);

@@ -77,6 +77,7 @@ uint64_t yield();
 int getCurrentStdin();
 int getCurrentStdout();
 int wait(uint64_t pid);
+void killForeground();
 uint64_t unblock(uint64_t pid);
 
 #endif

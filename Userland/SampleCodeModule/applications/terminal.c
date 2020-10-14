@@ -1,4 +1,5 @@
 #include <terminal.h>
+#include <phylo.h>
 
 static char *command1[ARG_PROCESS];
 static char *command2[ARG_PROCESS];
@@ -35,11 +36,7 @@ static int loop(int argc, char *argv[]);
 static int kill(int argc, char *argv[]);
 static int nice(int argc, char *argv[]);
 static int block(int argc, char *argv[]);
-static int runTestMM(int argc, char *argv[]);
-static int runTestPrio(int argc, char *argv[]);
-static int runTestProcesses(int argc, char *argv[]);
-static int runTestSync(int argc, char *argv[]);
-static int runTestNoSync(int argc, char *argv[]);
+static int test(int argc, char *argv[]);
 static int loop(int argc, char *argv[]);
 static int mem(int argc, char *argv[]);
 static int sem(int argc, char *argv[]);
@@ -48,7 +45,6 @@ static int cat(int argc, char *argv[]);
 static int wc(int argc, char *argv[]);
 static int unblock(int argc, char *argv[]);
 static int pipeInfo(int argc, char*argv[]);
-
 
 
 static commandsT commandVec[COMMANDS] = {
@@ -67,19 +63,17 @@ static commandsT commandVec[COMMANDS] = {
     {"kill", &kill, "Mata el proceso dado un id", 2},
     {"sem", &sem, "Imprime informacion de los semaforos", 1},
     {"mem", &mem, "Imprime informacion de la memoria", 1},
-    {"runTestMM", &runTestMM, "Realiza un testeo del memory manager", 1},
-    {"runTestPrio", &runTestPrio, "Realiza un testeo de las prioridades", 1},
-    {"runTestProcesses", &runTestProcesses, "Realiza un testeo de los procesos", 1},
-    {"runTestSync", &runTestSync, "Realiza un testo de la sincronizacion de procesos", 1},
-    {"runTestNoSync", &runTestNoSync, "Realiza un testeo de la no sincronizacion de procesos", 1},
+    {"test", &test, "Realiza un testeo. Modo de uso \"test <mm|prio|processes|sync|nosync>\"", 2},
     {"filter", &filter, "Filtra las vocales del input", 1},
     {"wc", &wc, "Cuenta la cantidad de lineas de input", 1},
     {"cat", &cat, "Imprime el stdin tal como la recibe", 1},
     {"unblock", &unblock, "Desbloquea el proceso dado su id. Modo de uso \"block <PID>\"", 2},
-    {"pipe", &pipeInfo, "Imprime informacion de los pipes", 1} };
+    {"pipe", &pipeInfo, "Imprime informacion de los pipes", 1},
+    {"phylo",&phylo,"Simula el problema de los filosofos",1}};
 
 static uint8_t registers[REGISTERS][REG_NAME] = {"RIP", "RSP", "RAX", "RBX", "RCX", "RDX", "RSI", "RBP",
                                                  "RDI", "R8 ", "R9 ", "R10", "R11", "R12", "R13", "R14", "R15"};
+
 
 int runShell(int argc, char *argv[]) {
     uint8_t buffer[BUFFERSIZE];
@@ -150,13 +144,14 @@ static void readCommand(uint8_t *buffer, uint8_t *buffDim) {
 
 static void addOneProcess(){
     int index = getIndex(command1[0]);
+ 
     if(index == -1)
         printString((uint8_t *)"Comando invalido\n");
     else{
         if (checkParameters(index, argcP1) != -1)
             addNewProcess(commandVec[index].function, argcP1, command1, fg, NULL);
         else
-        printString((uint8_t *)"Numero erroneo de argumentos\n");
+            printString((uint8_t *)"Numero erroneo de argumentos\n");
     }
 }
 
@@ -427,29 +422,24 @@ static int sem(int argc, char *argv[]) {
     putChar('\n');
     return 0;
 }
-static int runTestProcesses(int argc, char *argv[]) {
-    test_processes();
-    return 0;
-}
 
-static int runTestPrio(int argc, char *argv[]) {
-    test_prio();
-    return 0;
-}
 
-static int runTestMM(int argc, char *argv[]) {
-    test_mm();
-    return 0;
-}
 
-static int runTestSync(int argc, char *argv[]) {
-    test_sync();
-    return 0;
-}
-
-static int runTestNoSync(int argc, char *argv[]) {
-    test_no_sync();
-    return 0;
+static int test(int argc, char *argv[]) {
+    uint8_t* parameter = (uint8_t*)argv[1];
+    if(strcmp(parameter, (uint8_t*)"mm") == 0)
+        return test_mm();
+    else if(strcmp(parameter,(uint8_t*) "prio") == 0 )
+        return test_prio();
+    else if(strcmp(parameter,(uint8_t*) "sync") == 0)
+        return test_sync();
+    else if(strcmp(parameter,(uint8_t*) "nosync") == 0)
+        return test_no_sync();
+    else if(strcmp(parameter, (uint8_t*)"processes") == 0)
+        return test_processes();
+    
+    printf("Test invalido");
+    return -1;
 }
 
 
