@@ -41,15 +41,21 @@ int initPipes() {
 int pipeOpen(char* name) {
     sem_wait(creatingPipe);
     int firstInactive = -1;
+    
 
     for (int i = 0; i < dimPipes; i++) {
-        if (pipeArray[i].isActive && strcmp((uint8_t*)pipeArray[i].name,(uint8_t*) name) == 0) {
-            pipeArray[i].processUsing++;
-            sem_post(creatingPipe);
-            return i;
-        } else if (firstInactive == -1)
-            firstInactive = i;
+        if (pipeArray[i].isActive == 1){
+            if(strcmp((uint8_t*)pipeArray[i].name,(uint8_t*) name) == 0) {
+                pipeArray[i].processUsing++;
+                sem_post(creatingPipe);
+                return i;
+            }
+        } else{
+             if (firstInactive == -1)
+                firstInactive = i;
+        }
     }
+
     if (firstInactive == -1) {
         sem_post(creatingPipe);
         return -1;
@@ -57,7 +63,6 @@ int pipeOpen(char* name) {
     pipeArray[firstInactive].dim = SIZE;
     pipeArray[firstInactive].idxWrite = 0;
     pipeArray[firstInactive].idxRead = 0;
-
     pipeArray[firstInactive].processUsing = 1;
     pipeArray[firstInactive].isActive = 1;
 

@@ -164,12 +164,12 @@ static void addTwoProcess(){
             strcat((uint8_t*)pipeName, number);
             counter++;
             int aux = pipeOpen((char*)pipeName);
-               if (aux != -1) {
+            if (aux != -1) {
                     int fd[2] = {STDIN, aux};
                     int p1 = addNewProcess(commandVec[index1].function, argcP1, command1, fg, fd);
                     fd[0] = aux;
                     fd[1] = STDOUT;
-                    int p2 = addNewProcess(commandVec[index2].function, argcP2, command2, BACKGROUND, fd);           
+                    int p2 = addNewProcess(commandVec[index2].function, argcP2, command2, BACKGROUND, fd); 
                     waitPipe(aux,p1,p2);
                 }
                 else
@@ -184,9 +184,9 @@ static void addTwoProcess(){
 
 static void waitPipe(int pipe,int p1, int p2){
     
-    if(fg==BACKGROUND)
+    if(fg==BACKGROUND){
         waitPid(p1);
-
+    }
     writeInPipe(pipe,-1);
     
     waitPid(p2);
@@ -239,7 +239,6 @@ static int splitArgs(char * arguments[], int args) {
             return -1;
         i++;    
     }
-
 
     return 0;
 }
@@ -444,6 +443,7 @@ static int cat(int argc, char *argv[]){
 
     while((c = getChar()) != EOF)
         putChar((char)c);
+    
 
     return 0;
 }

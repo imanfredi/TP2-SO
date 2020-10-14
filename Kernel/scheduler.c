@@ -62,7 +62,6 @@ uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[], ui
 
     processNode *node = (processNode *)malloc2(sizeof(processNode) + STACK_SIZE);
     uint64_t ppid = currentProcess == NULL ? INIT_PROCESS : currentProcess->process.pid;
-
     if (node == NULL)
         return -1;
 
