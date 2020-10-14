@@ -279,3 +279,14 @@ int strtok(char token, char **dest, char *source, int max){
       }
       return index;
 }
+
+int isVowel(char c){
+    static char minus[] = {'a', 'e', 'i', 'o', 'u'};
+    static char mayus[] = {'A', 'E', 'I', 'O', 'U'};
+
+	for(int i = 0; i < 5; i++){
+		if(c == minus[i] || c == mayus[i])
+			return 1;
+	}
+	return 0;
+}

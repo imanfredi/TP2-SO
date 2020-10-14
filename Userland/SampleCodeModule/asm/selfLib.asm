@@ -21,6 +21,7 @@ GLOBAL changeValue
 GLOBAL pipeOpen
 GLOBAL closePipe
 GLOBAL writeInPipe
+GLOBAL waitPid
 
 extern strlen
 
@@ -310,7 +311,14 @@ writeInPipe:
     pop rbp
     ret
 
-
+waitPid:
+    push rbp
+    mov rbp,rsp
+    mov rax,32
+    int 80h
+    mov rsp,rbp
+    pop rbp
+    ret
 
 section .bss
 

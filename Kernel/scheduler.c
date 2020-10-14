@@ -380,3 +380,12 @@ int getCurrentStdout(){
 int getCurrentStdin(){
     return currentProcess->process.stdin;
 }
+
+int wait(uint64_t pid){
+    processNode *  node =findNode(pid);
+    if(node != NULL){
+        node->process.execution = FOREGROUND;
+        block(node->process.ppid);
+    }
+    return 0;
+}

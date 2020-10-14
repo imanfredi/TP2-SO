@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-char getChar();
+int getChar();
 uint8_t putChar(uint8_t c);
 uint8_t printString(uint8_t *string);
 uint8_t clear();
@@ -33,5 +33,5 @@ int pipeOpen(char* name);
 int closePipe(int fd);
 int changeValue(void * sem,int value);
 int writeInPipe(int fd,int endOfFile);
-
+int waitPid(int pid);
 #endif

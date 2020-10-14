@@ -58,8 +58,8 @@ void activateKeyBoard(uint64_t * stackPointer)
                 if (pressCodes[key][0] != 0)
                 {
                     if(ctrl && !lshift && !rshift){
-                        if(pressCodes[key][0] == '1'){
-                            addBuffer(CHANGE_SCREEN);
+                        if(pressCodes[key][0] == 'c' || pressCodes[key][0] == 'C'){
+                            addBuffer(EOF);
                         }
                         else if(pressCodes[key][0]=='l'){
                             addBuffer(CLEAR_SCREEN);

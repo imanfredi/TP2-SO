@@ -77,5 +77,6 @@ uint64_t getCurrentPid();
 uint64_t yield();
 int getCurrentStdin();
 int getCurrentStdout();
+int wait(uint64_t pid);
 
 #endif

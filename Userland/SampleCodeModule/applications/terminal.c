@@ -17,7 +17,7 @@ static void memToStr(uint8_t *mem, uint8_t *memStr, uint8_t bytesToConvert);
 static int loopProcess(int seconds);
 static int checkParameters(int index, int argc);
 static int getIndex(char *command);
-static void waitPipe(int pipe);
+static void waitPipe(int pipe, int p1,int p2);
 static void addOneProcess();
 static void addTwoProcess();
 
@@ -43,6 +43,10 @@ static int runTestNoSync(int argc, char *argv[]);
 static int loop(int argc, char *argv[]);
 static int mem(int argc, char *argv[]);
 static int sem(int argc, char *argv[]);
+static int filter(int argc, char *argv[]);
+static int cat(int argc, char *argv[]);
+static int wc(int argc, char *argv[]);
+
 
 static commandsT commandVec[COMMANDS] = {
     {"help", &help, "Lista la informacion de los comandos disponibles.", 1},
@@ -64,7 +68,10 @@ static commandsT commandVec[COMMANDS] = {
     {"runTestPrio", &runTestPrio, "Realiza un testeo de las prioridades", 1},
     {"runTestProcesses", &runTestProcesses, "Realiza un testeo de los procesos", 1},
     {"runTestSync", &runTestSync, "Realiza un testo de la sincronizacion de procesos", 1},
-    {"runTestNoSync", &runTestNoSync, "Realiza un testeo de la no sincronizacion de procesos", 1}};
+    {"runTestNoSync", &runTestNoSync, "Realiza un testeo de la no sincronizacion de procesos", 1},
+    {"filter", &filter, "Filtra las vocales del input", 1},
+    {"wc", &wc, "Cuenta la cantidad de lineas de input", 1},
+    {"cat", &cat, "Imprime el stdin tal como la recibe", 1} };
 
 static uint8_t registers[REGISTERS][REG_NAME] = {"RIP", "RSP", "RAX", "RBX", "RCX", "RDX", "RSI", "RBP",
                                                  "RDI", "R8 ", "R9 ", "R10", "R11", "R12", "R13", "R14", "R15"};
@@ -159,11 +166,11 @@ static void addTwoProcess(){
             int aux = pipeOpen((char*)pipeName);
                if (aux != -1) {
                     int fd[2] = {STDIN, aux};
-                    addNewProcess(commandVec[index1].function, argcP1, command1, fg, fd);
+                    int p1 = addNewProcess(commandVec[index1].function, argcP1, command1, fg, fd);
                     fd[0] = aux;
                     fd[1] = STDOUT;
-                    addNewProcess(commandVec[index2].function, argcP2, command1, BACKGROUND, fd);           
-                    waitPipe(aux);
+                    int p2 = addNewProcess(commandVec[index2].function, argcP2, command2, BACKGROUND, fd);           
+                    waitPipe(aux,p1,p2);
                 }
                 else
                     printString((uint8_t *)"Error en la ejecucion\n");
@@ -175,8 +182,15 @@ static void addTwoProcess(){
 
 
 
-static void waitPipe(int pipe){
+static void waitPipe(int pipe,int p1, int p2){
+    
+    if(fg==BACKGROUND)
+        waitPid(p1);
+
     writeInPipe(pipe,-1);
+    
+    waitPid(p2);
+
     closePipe(pipe);
 }
 
@@ -225,7 +239,8 @@ static int splitArgs(char * arguments[], int args) {
             return -1;
         i++;    
     }
-    
+
+
     return 0;
 }
 
@@ -422,46 +437,40 @@ static int runTestNoSync(int argc, char *argv[]) {
     return 0;
 }
 
+
 static int cat(int argc, char *argv[]){
     
-    char c;
+    int c;
 
     while((c = getChar()) != EOF)
-        putChar(c);
+        putChar((char)c);
 
     return 0;
 }
 
-static void wc(int argc, char *argv[]){
+static int wc(int argc, char *argv[]){
     uint64_t lines = 0;
-    char c;
+    int c;
 
     while((c = getChar()) != EOF){
-        if(c == '\n')
+        if((char)c == '\n')
             lines++;
     }
-    char number[10];
+    uint8_t number[10];
     uintToBase(lines, number, 10);
-    printString("Lines: ");
+    printString((uint8_t*)"Lines: ");
     printString(number);
+    putChar('\n');
+    return 0;
 }
 
 static int filter(int argc, char *argv[]){
     
-    char c;
+    int c;
     while((c = getChar()) != EOF){
-        if(!isVowel(c))
-            putchar(c);
+        if(!isVowel((char)c))
+            putChar((char)c);
     }
-}
 
-int isVowel(char c){
-    char minus[] = {'a', 'e', 'i', 'o', 'u'};
-    char mayus[] = {'A', 'E', 'I', 'O', 'U'};
-
-	for(int i = 0; i < 5; i++){
-		if(c == minus[i] || c == mayus[i])
-			return 1;
-	}
-	return 0;
+    return 0;
 }

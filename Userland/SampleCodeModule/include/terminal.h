@@ -9,9 +9,10 @@
 #include <test_util.h>
 #include <utils.h>
 
+#define EOF -1
 #define BUFFERSIZE 80
 #define CLEAR_SCREEN_CODE 252
-#define COMMANDS 20
+#define COMMANDS 23
 #define SIZE 25
 #define FALSE 0
 #define TRUE 1

@@ -19,7 +19,7 @@
 #define ENTER 0x1C
 #define BACK_SPACE 0x0E
 #define REGISTERS 17
-#define CHANGE_SCREEN 251
+#define EOF -1
 #define CLEAR_SCREEN 252
 
 uint8_t hasKey();

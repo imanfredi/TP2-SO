@@ -20,5 +20,6 @@ void *memcpy(void *destination, const void *source, uint64_t length);
 int atoi(const uint8_t *arr);
 int strtok(char token, char **dest, char *source, int max);
 uint8_t * strcat(uint8_t * dest,uint8_t * src);
+int isVowel(char c);
 
 #endif
