@@ -67,7 +67,7 @@ static commandsT commandVec[COMMANDS] = {
     {"filter", &filter, "Filtra las vocales del input", 1},
     {"wc", &wc, "Cuenta la cantidad de lineas de input", 1},
     {"cat", &cat, "Imprime el stdin tal como la recibe", 1},
-    {"unblock", &unblock, "Desbloquea el proceso dado su id. Modo de uso \"block <PID>\"", 2},
+    {"unblock", &unblock, "Desbloquea el proceso dado su id. Modo de uso \"unblock <PID>\"", 2},
     {"pipe", &pipeInfo, "Imprime informacion de los pipes", 1},
     {"phylo",&phylo,"Simula el problema de los filosofos",1}};
 
