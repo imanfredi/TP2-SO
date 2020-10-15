@@ -75,8 +75,8 @@ int test_no_sync() {
 
     printf("CREATING PROCESSES...(WITHOUT SEM)\n");
 
-    char * argv1[]={"inc","0","1","100"};
-    char * argv2[]={"inc","0","-1","100"};
+    char * argv1[]={"inc","0","1","1000000"};
+    char * argv2[]={"inc","0","-1","1000000"};
 
     for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
         addNewProcess(&inc, 4, argv1, BACKGROUND,NULL);

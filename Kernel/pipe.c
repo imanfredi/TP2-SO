@@ -156,7 +156,7 @@ int writePipeString(char* buffer, int len, int fd){
 
 int pipeInfo(){
     
-    uint8_t message[] = "Nombre pipe:    Semaforos involucrados:    Activo    Procesos usando";
+    uint8_t message[] = "Nombre pipe:    Activo    Procesos usando     Semaforos involucrados: ";
 
     printStringScreen(message,strlen(message),BLACK_WHITE);
     newLineScreen();
@@ -180,12 +180,6 @@ static void dumpPipe(pipe_t pipe){
     printStringScreen((uint8_t*)pipe.name,strlen((uint8_t*)pipe.name),BLACK_WHITE);
     printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
 
-    dumpSem(pipe.semRead);
-    printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
-
-    dumpSem(pipe.semWrite);
-    printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
-
     uintToBase(pipe.isActive,number,10);
     printStringScreen(number,strlen(number),BLACK_WHITE);
     printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
@@ -193,6 +187,11 @@ static void dumpPipe(pipe_t pipe){
     uintToBase(pipe.processUsing,number,10);
     printStringScreen(number,strlen(number),BLACK_WHITE);
     printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
+
+    dumpSem(pipe.semWrite);
+    printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
     
+    dumpSem(pipe.semRead);
+    printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
 
 }

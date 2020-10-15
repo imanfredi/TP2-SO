@@ -16,9 +16,14 @@ Para poder compilar los archivos primero compilar Toolchain
     user@linux:$ cd Toolchain
     user@linux:$ make all
 
-Luego compilar el Kernel desde el directorio TP2-SO
+Luego compilar el Kernel desde el directorio TP2-SO. En este caso se compila con el memory manager basado en Kernighan y Ritchie
 
     user@linux:$ make all
+
+Para compilar con el buddy manager se debe compilar con el comando:
+
+    user@linux:$ make MM=BUDDY_MM all
+
 
 ### Ejecucion:
 

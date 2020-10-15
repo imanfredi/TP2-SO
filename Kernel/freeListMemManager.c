@@ -1,5 +1,5 @@
 /*Implementacion basada en el libro de K&R*/
-
+#ifndef BUDDY_M
 #include <memoryManager.h>
 #include <stringFunctionsKernel.h>
 #include <adminScreen.h>
@@ -123,3 +123,5 @@ int memInfo(){
     return 0;
 
 }
+
+#endif
