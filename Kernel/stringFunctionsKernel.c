@@ -72,13 +72,13 @@ int strlen(const uint8_t *s)
 }
 
 int atoi(const uint8_t *arr) {
-    int signo = 1, aux, res=0, i = 0;
+    int signo = 1, res=0, i = 0;
 
     if (arr[0] == '-') {
         signo = -1;
         i++;
     }
-    for (; arr[i] != 0; i++) {
+    for (int aux; arr[i] != 0; i++) {
         aux = toNumber(arr[i]);
         if (aux == -1) {
             return aux;
@@ -218,9 +218,8 @@ void itoa(int value, uint8_t *str, int base)
 uint64_t stringHexaToNumber(uint8_t *string)
 {
     uint64_t number = 0;
-    uint8_t aux;
     uint64_t len = strlen(string);
-
+    uint8_t aux;
     uint64_t i = 0;
     uint8_t error = 0;
     while(i<len && !error){

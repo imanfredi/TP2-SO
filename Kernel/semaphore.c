@@ -188,11 +188,10 @@ static void dumpProcessBlocked(process_t * process){
 
     char * space="    ";
     uint8_t number[10];
-    int len;
+    
 
     while(process){
-        
-        len=uintToBase(process->pid,number,10);
+        int len = uintToBase(process->pid,number,10);
         printStringScreen(number,len,BLACK_WHITE);
         printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
     

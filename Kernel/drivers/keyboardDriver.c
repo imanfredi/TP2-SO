@@ -36,10 +36,10 @@ int initKeyboard(){
 
 void activateKeyBoard(uint64_t * stackPointer)
 {
-        uint8_t key;
+        
         if (hasKey() == 1)
         {   
-            key = getKey();
+            uint8_t key = getKey();
             uint8_t actionKey = action(key);
             if (actionKey == PRESSED)
             {
