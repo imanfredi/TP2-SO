@@ -99,13 +99,12 @@ void free2(void *ptr) {
 }
 
 int memInfo(){
-    int i;
     Header * curr;
-    int len;
     uint8_t number[40];
     char * message1="Bloque: ";
     char * message2="Cantidad de Bytes: ";
-    for (i=1, curr = freep; curr != NULL ; curr=curr->s.next,i++)
+    curr = freep;
+    for (int i=1, len ; curr != NULL ; curr=curr->s.next,i++)
     {  
         printStringScreen((uint8_t*)message1,strlen((uint8_t*)message1),BLACK_WHITE);
         

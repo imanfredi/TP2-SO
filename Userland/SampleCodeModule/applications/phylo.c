@@ -86,9 +86,9 @@ static void addPhylo(int i) {
     char sem_name[10] = "p";
     char number[10];
     uintToBase(remaining, (uint8_t*)number, 10);
-    char* argv1[] = {"./philosopher", number};
     strcat((uint8_t*)sem_name, (uint8_t*)number);
     if ((philosophers[i].sem = sem_open(sem_name, 0)) != NULL) {
+        char* argv1[] = {"./philosopher", number};
         philosophers[i].state = THINKING;
         philosophers[i].pid = addNewProcess(&philosopher, 2, argv1, BACKGROUND, NULL);
         remaining++;

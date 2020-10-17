@@ -31,16 +31,16 @@ int inc(int argc, char*argv[]){
     }
 
     for (i = 0; i < N; i++) {
-        if (sem){
+        if (sem && aux!=NULL){
             sem_wait(aux);
         }
         slowInc(&global, value);
-        if (sem){
+        if (sem && aux!=NULL){
             sem_post(aux);
         }
     }
 
-    if (sem){
+    if (sem && aux!=NULL){
         sem_close(aux);
     }
 

@@ -14,7 +14,7 @@
 #include <stringFunctionsKernel.h>
 #include <semaphore.h>
 #include <pipe.h>
-#define HEAP_SIZE 1024 * 1024 * 128
+#define HEAP_SIZE (1024 * 1024 * 128)
 
 extern uint8_t text;
 extern uint8_t rodata;

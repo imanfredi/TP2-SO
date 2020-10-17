@@ -380,8 +380,7 @@ static int kill(int argc, char *argv[]) {
 static int DivideByZeroException(int argc, char *argv[]) {
     int a = 1;
     int b = 0;
-    a = a / b;
-    return 0;
+    return a/b;
 }
 
 static int InvalidOpcodeException(int argc, char *argv[]) {
