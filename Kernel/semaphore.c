@@ -134,8 +134,10 @@ static void enqueueBlock(sem_t* sem, uint64_t pid) {
     }
 }
 
-static int dequeueBlock(sem_t* sem) {
-    if (sem == NULL || sem->firstWaiting == NULL) {
+
+static int dequeueBlock(sem_t * sem){
+
+    if(sem == NULL || sem->firstWaiting==NULL){
         return -1;
     }
 
