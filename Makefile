@@ -23,18 +23,21 @@ clean:
 CPP_SOURCES=$(shell find . -name '*.c')
 CPP_OUT=$(CPP_SOURCES:.c=.cpp)
 
+
+check: cpp pvs clean
+
+
 cpp: $(CPP_OUT)
 
 %.cpp: %.c
 	cppcheck --quiet --enable=all --force --inconclusive  $< 2>> out.cppOut
 
-cleanCpp:
-		rm out.cppOut
 
-checkPVS: $(CPP_OUT)  
+pvs: $(CPP_OUT)  
 	./pvs.sh
 
-clean_PVS: clean cleanCpp
-	$(RM) $(CPP_OUT) *.valout report.tasks
+cleanCheck: 
+	$(RM) $(CPP_OUT) *.valout report.tasks rm out.cppOut
+
 
 .PHONY: bootloader image collections kernel userland all clean check clean_check

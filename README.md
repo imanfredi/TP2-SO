@@ -137,7 +137,7 @@ Para eliminar los archivos ejecutables basta con correr el comando desde el dire
 
     make clean
 
-### Checkeo de memory leaks y testeo con Valgrind:
+### Analisis estatico con pvs-studio y cppcheck
 
 Para realizar los checkeos con pvs-studio y cppcheck, primero debe instalarlos con los comandos:
 
@@ -148,10 +148,8 @@ A continuacion puede realizar los chequeos con el comando:
 
     make check
 
-Si se desea correr algun caso de testeo con valgrind, se debe especificar dentro del makefile en la variable TF, el directorio donde se encuentran los archivos .cnf que se desean analizar. Asegurarse de contar con valgrind. Para instalarlo:
+Podra ver el analisis de cpp check y de pvs-studio en los archivos out.cppOut y report.tasks respectivamente.
 
-    apt-get install valgrind
+Para eliminar dichos archivos una vez leidos utilice el comando:
 
-Finalmente puede correr el comando:
-
-    make test
+        make cleanCheck
