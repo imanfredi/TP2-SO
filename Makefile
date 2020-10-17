@@ -32,5 +32,11 @@ cpp: $(CPP_OUT)
 cleanCpp:
 		rm out.cppOut
 
+check: clean $(CPPANS) 
+	./pvs.sh
 
-.PHONY: bootloader image collections kernel userland all clean
+clean_check:
+	$(RM) $(CPPANS) *.valout report.tasks
+
+
+.PHONY: bootloader image collections kernel userland all clean check clean_check

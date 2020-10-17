@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /*Implementacion basada en el libro de K&R*/
 #ifndef BUDDY_M
 #include <memoryManager.h>
