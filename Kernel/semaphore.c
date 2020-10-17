@@ -170,12 +170,12 @@ void dumpSem(sem_t * sem){
     enterCR(&sem->lock);
     char * space="    ";
     uint8_t number[30];
-    int len;
+
     printStringScreen((uint8_t*)sem->name,strlen((uint8_t*)sem->name),BLACK_WHITE);
     printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
 
-    len=uintToBase(sem->value,number,10);
-    printStringScreen(number,len,BLACK_WHITE);
+    itoa(sem->value, number, 10);
+    printStringScreen(number,strlen(number),BLACK_WHITE);
     printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
     
     dumpProcessBlocked(sem->firstWaiting);
