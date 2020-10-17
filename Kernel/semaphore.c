@@ -112,7 +112,7 @@ int sem_post(sem_t* sem) {
     sem->value++;
     if (sem->firstWaiting != NULL) {
         int pid = dequeueBlock(sem);
-        unblock(pid);  //unblock
+        unblock(pid);  
     }
 
     leaveCR(&sem->lock);
