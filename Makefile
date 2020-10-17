@@ -28,17 +28,13 @@ cpp: $(CPP_OUT)
 %.cpp: %.c
 	cppcheck --quiet --enable=all --force --inconclusive  $< 2>> out.cppOut
 
-
 cleanCpp:
 		rm out.cppOut
 
-checkPVS: clean $(CPP_OUT) 
+checkPVS: $(CPP_OUT)  
 	./pvs.sh
 
-clean_checkPVS:
+clean_PVS: clean cleanCpp
 	$(RM) $(CPP_OUT) *.valout report.tasks
-
-valgrind: all $(CPP_OUT)
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=master.valout ./master.out $(TF) 2> master.valout | valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=view.valout ./view.out 2> view.valout > /dev/null
 
 .PHONY: bootloader image collections kernel userland all clean check clean_check
