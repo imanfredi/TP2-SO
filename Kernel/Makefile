@@ -1,5 +1,5 @@
 include Makefile.inc
-
+MM=-D FREE_LIST_MEMORY_MANAGER
 KERNEL=kernel.bin
 SOURCES=$(wildcard *.c)
 SOURCES_ASM=$(wildcard asm/*.asm)
@@ -30,7 +30,7 @@ $(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM) $(OBJECTS_IDT
 	$(LD) $(LDFLAGS) -T kernel.ld -o $@ $^
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -I./include -I./IDT/include -I./drivers/include -I./IDT/sysCallUtils/include -c $< -o $@
+	$(GCC) $(GCCFLAGS) $(MM) -I./include -I./IDT/include -I./drivers/include -I./IDT/sysCallUtils/include -c $< -o $@
 
 %.o : %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@

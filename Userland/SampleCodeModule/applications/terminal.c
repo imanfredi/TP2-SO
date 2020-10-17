@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <terminal.h>
 #include <phylo.h>
 
@@ -6,7 +8,7 @@ static char *command2[ARG_PROCESS];
 static char * arguments[MAX_ARGS];
 static int argcP1 = 0;
 static int argcP2 = 0;
-static int fg = 0;
+static int fgExec = 0;
 static int pipe = 0;
 static int counter = 0;
 
@@ -67,7 +69,7 @@ static commandsT commandVec[COMMANDS] = {
     {"filter", &filter, "Filtra las vocales del input", 1},
     {"wc", &wc, "Cuenta la cantidad de lineas de input", 1},
     {"cat", &cat, "Imprime el stdin tal como la recibe", 1},
-    {"unblock", &unblock, "Desbloquea el proceso dado su id. Modo de uso \"block <PID>\"", 2},
+    {"unblock", &unblock, "Desbloquea el proceso dado su id. Modo de uso \"unblock <PID>\"", 2},
     {"pipe", &pipeInfo, "Imprime informacion de los pipes", 1},
     {"phylo",&phylo,"Simula el problema de los filosofos",1}};
 
@@ -149,7 +151,7 @@ static void addOneProcess(){
         printString((uint8_t *)"Comando invalido\n");
     else{
         if (checkParameters(index, argcP1) != -1)
-            addNewProcess(commandVec[index].function, argcP1, command1, fg, NULL);
+            addNewProcess(commandVec[index].function, argcP1, command1, fgExec, NULL);
         else
             printString((uint8_t *)"Numero erroneo de argumentos\n");
     }
@@ -175,7 +177,7 @@ static void addTwoProcess(){
                     fd[0] = STDIN;
                     fd[1] = aux;
 
-                    int p1 = addNewProcess(commandVec[index1].function, argcP1, command1, fg, fd);
+                    int p1 = addNewProcess(commandVec[index1].function, argcP1, command1, fgExec, fd);
                     
                     waitPipe(aux,p1,p2);
                 }
@@ -191,7 +193,7 @@ static void addTwoProcess(){
 
 static void waitPipe(int pipe,int p1, int p2){
     
-    if(fg==BACKGROUND){
+    if(fgExec==BACKGROUND){
         waitPid(p1);
     }
     writeInPipe(pipe,-1);
@@ -235,8 +237,8 @@ static int splitArgs(char * arguments[], int args) {
                 return -1;
 
         } else if (strcmp((uint8_t*)arguments[i],(uint8_t*)"&") == 0){
-            if (fg == FOREGROUND)
-                fg = BACKGROUND;
+            if (fgExec == FOREGROUND)
+                fgExec = BACKGROUND;
             else
                 return -1;
         } else if (*argDim < ARG_PROCESS) {
@@ -250,7 +252,7 @@ static int splitArgs(char * arguments[], int args) {
 }
 
 static void cleanArgs() {
-    fg=FOREGROUND;
+    fgExec=FOREGROUND;
     argcP1 = 0;
     argcP2 = 0;
     pipe = 0;
@@ -378,8 +380,7 @@ static int kill(int argc, char *argv[]) {
 static int DivideByZeroException(int argc, char *argv[]) {
     int a = 1;
     int b = 0;
-    a = a / b;
-    return 0;
+    return a/b;
 }
 
 static int InvalidOpcodeException(int argc, char *argv[]) {

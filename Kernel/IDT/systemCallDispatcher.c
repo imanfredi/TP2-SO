@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <adminScreen.h>
 #include <keyboardDriver.h>
 #include <lib.h>
@@ -58,7 +60,7 @@ static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &writeSyscall, &c
 uint64_t systemCallDispatcher(Register_t *parameters) {
     uint64_t output = -1;
 
-    if (parameters->rax >= 0 && parameters->rax < FUNCTIONS) {
+    if (parameters->rax < FUNCTIONS) {
         output = syscalls[parameters->rax](parameters);
     }
     return output;

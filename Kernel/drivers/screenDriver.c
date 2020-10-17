@@ -1,8 +1,9 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <screenDriver.h>
 
 static uint8_t *const initialMem = (uint8_t *)0xB8000;
 static uint8_t *const endMem = (uint8_t *)0xB8FA0;
-
 static uint8_t * currentmem =(uint8_t *)0xB8000;
 
 

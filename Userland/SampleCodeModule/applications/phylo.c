@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <commands.h>
 #include <phylo.h>
 #include <selfLib.h>
@@ -95,6 +97,7 @@ static void addPhylo(int i) {
     uintToBase(phy, (uint8_t*)number2, 10);
     strcat((uint8_t*)sem_name, (uint8_t*)number2);
     if ((philosophers[i].sem = sem_open(sem_name, 0)) != NULL) {
+        char* argv1[] = {"./philosopher", number};
         philosophers[i].state = THINKING;
         philosophers[i].pid = addNewProcess(&philosopher, 2, argv1, BACKGROUND, NULL);
         remaining++;

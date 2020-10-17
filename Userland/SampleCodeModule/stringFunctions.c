@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <selfLib.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -171,9 +173,8 @@ void itoa(int value, uint8_t *str, int base) {
 
 uint64_t stringHexaToNumber(uint8_t *string) {
     uint64_t number = 0;
-    uint8_t aux;
     uint64_t len = strlen(string);
-
+    uint8_t aux;
     uint64_t i = 0;
     uint8_t error = 0;
     while (i < len && !error) {
@@ -240,18 +241,18 @@ void ftoa(double value, uint8_t *str, uint8_t precision) {
     double decPart = (value - (int)value);
     decPart *= pow(10, precision);
     int intPart = (float)decPart;
-    i += uintToBaseWithLength(intPart, str + i, 10, precision + 1);
+    uintToBaseWithLength(intPart, str + i, 10, precision + 1);
 }
 
 
 int atoi(const uint8_t *arr) {
-    int signo = 1, aux, res=0, i = 0;
+    int signo = 1, res=0, i = 0;
 
     if (arr[0] == '-') {
         signo = -1;
         i++;
     }
-    for (; arr[i] != 0; i++) {
+    for (int aux; arr[i] != 0; i++) {
         aux = toNumber(arr[i]);
         if (aux == -1) {
             return aux;
