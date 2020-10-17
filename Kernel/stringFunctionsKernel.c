@@ -257,5 +257,5 @@ void ftoa(double value, uint8_t *str, uint8_t precision) {
       double decPart = (value - (int)value);
       decPart *= pow(10, precision);
       int intPart = (float)decPart;
-      i += uintToBaseWithLength(intPart, str + i, 10, precision + 1);
+      uintToBaseWithLength(intPart, str + i, 10, precision + 1);
 }

@@ -111,7 +111,7 @@ void activateKeyBoard(uint64_t * stackPointer)
 
 static uint8_t action(uint8_t scanCode)
 {
-    if (scanCode >= 0x00 && scanCode <= 0x3A)
+    if (scanCode <= 0x3A)
         return PRESSED;
     else if (scanCode >= 0x80 && scanCode <= 0xBA)
         return RELEASED;
@@ -127,7 +127,7 @@ static uint8_t secondKey(uint8_t character)
 
 static uint8_t isLetter(uint8_t character)
 {
-    return (character >= 'a' && character <= 'z') || (character >= 'Z' && character <='Z');
+    return (character >= 'a' && character <= 'z') || (character >= 'A' && character <='Z');
 }
 
 static void addBuffer(uint8_t c){

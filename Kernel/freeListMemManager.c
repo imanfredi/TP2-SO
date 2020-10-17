@@ -7,7 +7,7 @@
 #include <adminScreen.h>
 
 #define NULL 0
-#define HEAP_SIZE 1024 * 1024 * 128  //la maxima cantidad que soporta nuestro memory manager
+#define HEAP_SIZE (1024 * 1024 * 128)  //la maxima cantidad que soporta nuestro memory manager
 
 typedef long Align;
 

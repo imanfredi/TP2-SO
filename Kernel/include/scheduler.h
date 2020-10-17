@@ -1,7 +1,7 @@
 #ifndef _SCHEDULER_H
 #define _SCHEDULER_H
 #include <stdint.h>
-#define STACK_SIZE 1024 * 4
+#define STACK_SIZE (1024 * 4)
 #define INITIAL_PRIORITY 1
 #define INIT_PROCESS 1
 #define FOREGROUND 0

@@ -4,7 +4,6 @@
 
 static uint8_t *const initialMem = (uint8_t *)0xB8000;
 static uint8_t *const endMem = (uint8_t *)0xB8FA0;
-
 static uint8_t * currentmem =(uint8_t *)0xB8000;
 
 

@@ -60,7 +60,7 @@ static uint64_t (*syscalls[FUNCTIONS])(Register_t *) = {&read, &writeSyscall, &c
 uint64_t systemCallDispatcher(Register_t *parameters) {
     uint64_t output = -1;
 
-    if (parameters->rax >= 0 && parameters->rax < FUNCTIONS) {
+    if (parameters->rax < FUNCTIONS) {
         output = syscalls[parameters->rax](parameters);
     }
     return output;
