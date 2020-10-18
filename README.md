@@ -7,8 +7,6 @@ Asegurarse previamente antes de poder ejecutar el programa tener instalado minis
     
     nasm qemu gcc make
 
-    apt-get install minisat
-
 ### Compilacion
 
 Para poder compilar los archivos primero compilar Toolchain
