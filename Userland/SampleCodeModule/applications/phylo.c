@@ -42,55 +42,45 @@ int phylo(int argc, char* argv[]) {
     remaining = 0;
     phy = 0;
 
-    for (int i = 0; i < INITIAL_PHYLO; i++){
-        sem_wait(lock);
+    for (int i = 0; i < 1; i++)
         addPhylo(i);
-        sem_post(lock);
-    }
 
     int c;
     while ((c = getChar()) && remaining > 0) {
         if ((char)c == 'r' || (char)c == 'R')
-            removePhylo(remaining-1);
+            removePhylo(remaining - 1);
         else if (((char)c == 'a' || (char)c == 'A') && remaining < MAX)
             addPhylo(remaining);
     }
 
-    removePhylo(remaining-1);
+    removePhylo(remaining - 1);
 
     sem_close(lock);
     return 0;
 }
 
-static void removePhylo(int i){
-
+static void removePhylo(int i) {
     sem_wait(lock);
     remaining--;
-    if(philosophers[i].state == EATING){
+    if (philosophers[i].state == EATING) {
         philosophers[i].state = LEAVING;
-        if(i!=0){
+        if (i != 0) {
             check(i - 1);
             check(0);
         }
-    }else{
-        if(i!=0)
-            check(i - 1);
     }
-    
-    printf("Removed %d\n", i);
+    printf("Removed from the table %d\n", i);
     sem_close(philosophers[i].sem);
     _kill(philosophers[i].pid);
-    sem_post(lock); 
-
+    sem_post(lock);
 }
 
-
 static void addPhylo(int i) {
+    sem_wait(lock);
     char sem_name[10] = "phy";
     char number[10];
     char number2[10];
     uintToBase(remaining, (uint8_t*)number, 10);
-    char* argv1[] = {"./philosopher", number};
     uintToBase(phy, (uint8_t*)number2, 10);
     strcat((uint8_t*)sem_name, (uint8_t*)number2);
     if ((philosophers[i].sem = sem_open(sem_name, 0)) != NULL) {
@@ -100,7 +90,8 @@ static void addPhylo(int i) {
         remaining++;
         phy++;
     }
-    printf("Add %d\n", i);
+    printf("Add to the table %d\n", i);
+    sem_post(lock);
 }
 
 int philosopher(int argc, char* argv[]) {
@@ -118,7 +109,7 @@ static void take_forks(int i) {
     sem_wait(lock);
     philosophers[i].state = HUNGRY;
     check(i);
-    
+
     sem_post(lock);
     sem_wait(philosophers[i].sem);
 }
@@ -137,7 +128,6 @@ static void check(int i) {
     r = right(i);
     if (philosophers[i].state == HUNGRY && philosophers[l].state != EATING && philosophers[r].state != EATING) {
         philosophers[i].state = EATING;
-        // printf("filo %d: ", i);
         printState();
         sem_post(philosophers[i].sem);
     }
@@ -166,15 +156,47 @@ static void sleep() {
 }
 
 static void printState() {
-    for(int i = 0; i < remaining;i++){
+    for (int i = 0; i < remaining; i++) {
         if (philosophers[i].state == EATING)
             printf(" E ");
-        else if(philosophers[i].state == HUNGRY)
+        else if (philosophers[i].state == HUNGRY)
             printf(" H ");
         else
             printf(" . ");
     }
-    
+
     putChar('\n');
-    
 }
+
+/**H ----  H E
+H ----  . E
+. ----  H E
+. ----  . E
+
+E ---- E H
+E ---- H H 
+E ---- . H 
+H ---- E H 
+H ---- H H 
+H ---- . H 
+. ---- E H 
+. ---- H H 
+. ---- . H 
+ 
+E ---- E . 
+E ---- H . 
+E ---- . . 
+H ---- E . 
+H ---- H . 
+H ---- . . 
+. ---- E . 
+. ---- H . 
+. ---- . . 
+
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+*/
