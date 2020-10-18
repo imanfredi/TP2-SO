@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <exceptions.h>
 #include <idtLoader.h>
 #include <interrupts.h>
@@ -12,7 +14,7 @@
 #include <stringFunctionsKernel.h>
 #include <semaphore.h>
 #include <pipe.h>
-#define HEAP_SIZE 1024 * 1024 * 128
+#define HEAP_SIZE (1024 * 1024 * 128)
 
 extern uint8_t text;
 extern uint8_t rodata;

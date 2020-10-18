@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <keyboardDriver.h>
 #include <semaphore.h>
 #include <scheduler.h>
@@ -36,10 +38,10 @@ int initKeyboard(){
 
 void activateKeyBoard(uint64_t * stackPointer)
 {
-        uint8_t key;
+        
         if (hasKey() == 1)
         {   
-            key = getKey();
+            uint8_t key = getKey();
             uint8_t actionKey = action(key);
             if (actionKey == PRESSED)
             {
@@ -109,7 +111,7 @@ void activateKeyBoard(uint64_t * stackPointer)
 
 static uint8_t action(uint8_t scanCode)
 {
-    if (scanCode >= 0x00 && scanCode <= 0x3A)
+    if (scanCode <= 0x3A)
         return PRESSED;
     else if (scanCode >= 0x80 && scanCode <= 0xBA)
         return RELEASED;
@@ -125,7 +127,7 @@ static uint8_t secondKey(uint8_t character)
 
 static uint8_t isLetter(uint8_t character)
 {
-    return (character >= 'a' && character <= 'z') || (character >= 'Z' && character <='Z');
+    return (character >= 'a' && character <= 'z') || (character >= 'A' && character <='Z');
 }
 
 static void addBuffer(uint8_t c){

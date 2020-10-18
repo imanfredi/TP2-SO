@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <commands.h>
 #include <selfLib.h>
 #include <stringFunctions.h>
@@ -29,16 +31,16 @@ int inc(int argc, char*argv[]){
     }
 
     for (i = 0; i < N; i++) {
-        if (sem){
+        if (sem && aux!=NULL){
             sem_wait(aux);
         }
         slowInc(&global, value);
-        if (sem){
+        if (sem && aux!=NULL){
             sem_post(aux);
         }
     }
 
-    if (sem){
+    if (sem && aux!=NULL){
         sem_close(aux);
     }
 

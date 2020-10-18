@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <adminScreen.h>
 #include <interrupts.h>
 #include <lib.h>
@@ -263,11 +265,11 @@ static void printProcessInfo(processNode *n) {
     printStringScreen(number, len,BLACK_WHITE);
     printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "),BLACK_WHITE);
 
-    len = uintToBaseWithLength(n->process.rsp, registers, SIZE_REGISTER, SIZE_REGISTER + 1);
+    uintToBaseWithLength(n->process.rsp, registers, SIZE_REGISTER, SIZE_REGISTER + 1);
     printStringScreen(registers, SIZE_REGISTER + 1,BLACK_WHITE);
     printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "),BLACK_WHITE);
 
-    len = uintToBaseWithLength(n->process.rbp, registers, SIZE_REGISTER, SIZE_REGISTER + 1);
+    uintToBaseWithLength(n->process.rbp, registers, SIZE_REGISTER, SIZE_REGISTER + 1);
     printStringScreen(registers, SIZE_REGISTER + 1,BLACK_WHITE);
     printStringScreen((uint8_t *)"   ", strlen((uint8_t *)"   "),BLACK_WHITE);
 

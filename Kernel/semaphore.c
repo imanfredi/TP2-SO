@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <lib.h>
 #include <memoryManager.h>
 #include <scheduler.h>
@@ -110,7 +112,7 @@ int sem_post(sem_t* sem) {
     sem->value++;
     if (sem->firstWaiting != NULL) {
         int pid = dequeueBlock(sem);
-        unblock(pid);  //unblock
+        unblock(pid);  
     }
 
     leaveCR(&sem->lock);
@@ -170,12 +172,12 @@ void dumpSem(sem_t * sem){
     enterCR(&sem->lock);
     char * space="    ";
     uint8_t number[30];
-    int len;
+
     printStringScreen((uint8_t*)sem->name,strlen((uint8_t*)sem->name),BLACK_WHITE);
     printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
-    
-    len=uintToBase(sem->value,number,10);
-    printStringScreen(number,len,BLACK_WHITE);
+
+    itoa(sem->value, number, 10);
+    printStringScreen(number,strlen(number),BLACK_WHITE);
     printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
     
     dumpProcessBlocked(sem->firstWaiting);
@@ -190,11 +192,10 @@ static void dumpProcessBlocked(process_t * process){
 
     char * space="    ";
     uint8_t number[10];
-    int len;
+    
 
     while(process){
-        
-        len=uintToBase(process->pid,number,10);
+        int len = uintToBase(process->pid,number,10);
         printStringScreen(number,len,BLACK_WHITE);
         printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
     

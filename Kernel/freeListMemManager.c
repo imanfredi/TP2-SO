@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /*Implementacion basada en el libro de K&R*/
 #ifndef BUDDY_M
 #include <memoryManager.h>
@@ -5,7 +7,7 @@
 #include <adminScreen.h>
 
 #define NULL 0
-#define HEAP_SIZE 1024 * 1024 * 128  //la maxima cantidad que soporta nuestro memory manager
+#define HEAP_SIZE (1024 * 1024 * 128)  //la maxima cantidad que soporta nuestro memory manager
 
 typedef long Align;
 
@@ -97,13 +99,12 @@ void free2(void *ptr) {
 }
 
 int memInfo(){
-    int i;
     Header * curr;
-    int len;
     uint8_t number[40];
     char * message1="Bloque: ";
     char * message2="Cantidad de Bytes: ";
-    for (i=1, curr = freep; curr != NULL ; curr=curr->s.next,i++)
+    curr = freep;
+    for (int i=1, len ; curr != NULL ; curr=curr->s.next,i++)
     {  
         printStringScreen((uint8_t*)message1,strlen((uint8_t*)message1),BLACK_WHITE);
         
