@@ -53,11 +53,11 @@ void *initializeKernelBinary() {
 }
 
 int main() {
-    initializeMemoryManager(heapBaseAddress, HEAP_SIZE);
-    initSemaphores();
-    load_idt();
     initScreen();
+    load_idt();
+    initializeMemoryManager(heapBaseAddress, HEAP_SIZE);
     initializeScheduler();
+    initSemaphores();
     initPipes();
     initKeyboard();
     char *argv[] = {"./sample"};

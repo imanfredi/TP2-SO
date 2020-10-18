@@ -33,12 +33,14 @@ static void getNextReady();
 void initializeScheduler() {
     pidCounter = 0;
     processQueue = malloc2(sizeof(processQueue_t));
+    
     processQueue->first = NULL;
     processQueue->last = NULL;
     currentProcess = NULL;
     char *argv[] = {"dummyProcess"};
     addNewProcess(&dummyProcess, 1, argv, BACKGROUND,NULL);
     dummy = dequeueProcess();
+       
     processQueue->size = 0;
     processQueue->ready = 0;
 }
