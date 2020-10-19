@@ -16,7 +16,11 @@ enum states {
     THINKING = 0,
     HUNGRY,
     EATING,
-    LEAVING
+};
+
+enum isLocked{
+    LOCKED = 0,
+    UNLOCKED,
 };
 
 static void* lock;
@@ -24,6 +28,7 @@ static int remaining;
 static int phy;
 
 static phylo_t philosophers[MAX];
+static int locked[MAX] = {0};
 static int right(int i);
 static int left(int i);
 static void check(int i);
@@ -34,6 +39,7 @@ static void sleep();
 static void removePhylo(int i);
 static void addPhylo(int i);
 static void printState();
+static void killRemaining();
 
 int phylo(int argc, char* argv[]) {
     if ((lock = sem_open("sem", 1)) == NULL) {
@@ -42,18 +48,18 @@ int phylo(int argc, char* argv[]) {
     remaining = 0;
     phy = 0;
 
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < INITIAL_PHYLO; i++)
         addPhylo(i);
 
     int c;
-    while ((c = getChar()) && remaining > 0) {
+    while ((c = getChar()) != EOF && remaining > 0) {
         if ((char)c == 'r' || (char)c == 'R')
             removePhylo(remaining - 1);
         else if (((char)c == 'a' || (char)c == 'A') && remaining < MAX)
             addPhylo(remaining);
     }
 
-    removePhylo(remaining - 1);
+    killRemaining();
 
     sem_close(lock);
     return 0;
@@ -61,17 +67,27 @@ int phylo(int argc, char* argv[]) {
 
 static void removePhylo(int i) {
     sem_wait(lock);
-    remaining--;
-    if (philosophers[i].state == EATING) {
-        philosophers[i].state = LEAVING;
-        if (i != 0) {
+    if(locked[i] == LOCKED){
+        sem_post(lock);
+        removePhylo(i); // Hay que esperar a que haga su sem_post
+        return;
+    }else{
+        if (philosophers[i].state == EATING && i != 0) {    
+            sem_close(philosophers[i].sem);
+            _kill(philosophers[i].pid);
+            remaining--;
+            printf("Removed (E) from the table %d\n", i);
             check(i - 1);
             check(0);
         }
+        else{
+            sem_close(philosophers[i].sem);
+            _kill(philosophers[i].pid);
+            remaining--;
+            printf("Removed (T|H) from the table %d\n", i);
+        }
     }
-    printf("Removed from the table %d\n", i);
-    sem_close(philosophers[i].sem);
-    _kill(philosophers[i].pid);
+    
     sem_post(lock);
 }
 
@@ -106,20 +122,24 @@ int philosopher(int argc, char* argv[]) {
 }
 
 static void take_forks(int i) {
+    locked[i] = LOCKED;
     sem_wait(lock);
     philosophers[i].state = HUNGRY;
     check(i);
-
     sem_post(lock);
+    locked[i] = UNLOCKED;
+
     sem_wait(philosophers[i].sem);
 }
 
 static void put_forks(int i) {
+    locked[i] = LOCKED;
     sem_wait(lock);
-    philosophers[i].state = THINKING;
+    philosophers[i].state = THINKING;    
     check(left(i));
     check(right(i));
     sem_post(lock);
+    locked[i] = UNLOCKED;    
 }
 
 static void check(int i) {
@@ -166,6 +186,16 @@ static void printState() {
     }
 
     putChar('\n');
+}
+
+static void killRemaining(){
+
+    while (remaining >= 0){
+        sem_close(philosophers[remaining-1].sem);
+        _kill(philosophers[remaining-1].pid);
+        remaining--;
+    }
+    
 }
 
 /**H ----  H E
