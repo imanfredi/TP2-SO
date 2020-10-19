@@ -5,33 +5,33 @@ Construcción del Núcleo de un Sistema Operativo y estructuras de administraci�
 
 Asegurarse previamente antes de poder ejecutar el programa tener instalado minisat. Para instalarlo:
     
-    nasm qemu gcc make
+        nasm qemu gcc make
 
 ### Compilacion
 
 Para poder compilar los archivos primero compilar Toolchain
 
-    user@linux:$ cd Toolchain
-    user@linux:$ make all
+        user@linux:$ cd Toolchain
+        user@linux:$ make all
 
 Luego compilar el Kernel desde el directorio TP2-SO. En este caso se compila con el memory manager basado en Kernighan y Ritchie
 
-    user@linux:$ make all
+        user@linux:$ make all
 
 Para compilar con el buddy manager se debe compilar con el comando:
 
-    user@linux:$ make MM=BUDDY_MM all
+        user@linux:$ make MM=BUDDY_MM all
 
 
 ### Ejecucion:
 
 Para la ejecucion del kernel correr desde el directorio TP2-SO
 
-    user@linux:$ ./run.sh
+        user@linux:$ ./run.sh
 
 En la shell de Userland cuenta con una serie de comandos que puede visualizar con el comando:
 
-    >myshell:$ help
+        >myshell:$ help
 
 Todas los comandos se presentan en la lista a continuación
 
@@ -133,18 +133,37 @@ Basta para correr un proceso en background utilizar un & en el comando. Por defa
     
 Para eliminar los archivos ejecutables basta con correr el comando desde el directorio TP2-SO :
 
-    make clean
+        make clean
+
+Para poder pipear archivos, basta con ejecutar los comandos seguidos por un “ | ”. Se deben ejecutar comandos que no impriman desde Kernel como los mencionados anteriormente (ps,mem,sem,etc). Su ejemplo de modo de uso es:
+
+        >myshell$: help | cat
+
+De esta forma, el comando help escribirá su salida en un pipe, el cual será leído por el comando cat, que lo imprimirá posteriormente en pantalla. 
+
+Asimismo se puede correr por ejemplo:
+
+        >myshell$: time | filter
+
+En este caso se eliminarán las vocales del mensaje indicador de hora actual
+
+Por último existe otro comando que resulta interesante pipear que es el wc que cuenta la cantidad de líneas que encuentra en la entrada. Modo de uso 
+
+        >myshell$: help | cat
+
+En caso de correr los comandos wc, cat o filter sin pipearlos a ningún archivo, se quedaran esperando el teclado porque por default se configura que su entrada y salida sea la estandar. Para mandar el EOF para que se retomar el control en la shell se utiliza la combinación de teclas CTRL + C.
+
 
 ### Analisis estatico con pvs-studio y cppcheck
 
 Para realizar los checkeos con pvs-studio y cppcheck, primero debe instalarlos con los comandos:
 
-    apt-get install pvs-studio
-    apt-get install cppcheck
+        apt-get install pvs-studio
+        apt-get install cppcheck
 
 A continuacion puede realizar los chequeos con el comando:
 
-    make check
+        make check
 
 Podra ver el analisis de cpp check y de pvs-studio en los archivos out.cppOut y report.tasks respectivamente.
 
