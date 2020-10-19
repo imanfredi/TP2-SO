@@ -58,7 +58,7 @@ void finishScheduler() {
 
 uint64_t addNewProcess(int (*function)(int, char **), int argc, char *argv[], uint64_t execution,int fd[]) {
     if (currentProcess != NULL) {
-        //si quiere crear un proceso en foreground y esta en background no se le permite
+        //si quiere crear un proceso en foreground y esta en background no se le permite, solo foreground puede crear en foreground
         if (execution == FOREGROUND && currentProcess->process.execution == BACKGROUND) {
             return -1;
         }
