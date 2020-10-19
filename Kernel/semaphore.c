@@ -28,16 +28,15 @@ int initSemaphores() {
     semList->first = NULL;
     return 0;
 }
-
 sem_t* sem_open(char* name, int value) {
-    enterCR(&creatingSem);
-
+    while(_xchg(&creatingSem,1)!=0);
+    
     sem_t* aux = semList->first;
     
     while (aux) {
         if (strcmp((uint8_t*)aux->name, (uint8_t*)name) == 0) {
             aux->proccessCount++;
-            leaveCR(&creatingSem);
+            _xchg(&creatingSem,0);
             return aux;
         }
         aux = aux->next;
@@ -45,7 +44,7 @@ sem_t* sem_open(char* name, int value) {
     
     aux = malloc2(sizeof(sem_t));
     if (aux == NULL) {
-        leaveCR(&creatingSem);
+        _xchg(&creatingSem,0);
         return NULL;
     }
 
@@ -59,14 +58,14 @@ sem_t* sem_open(char* name, int value) {
     semList->first = aux;
     aux->next = second;
 
-    leaveCR(&creatingSem);
+    _xchg(&creatingSem,0);
     
     return aux;
 }
 /*Si yo estoy bloqueando despierto al siguiente*/
 
 int sem_close(sem_t* sem) {
-    enterCR(&closingSem);
+    while(_xchg(&closingSem,1)!=0);
 
     sem_t* prev = semList->first;
     sem_t* curr = prev;
@@ -82,40 +81,40 @@ int sem_close(sem_t* sem) {
                     prev->next = curr->next;
                 free2(curr);
             }
-            leaveCR(&closingSem);
+            _xchg(&closingSem,0);
             return 0;
         }
         prev = curr;
         curr = curr->next;
     }
 
-    leaveCR(&closingSem);
+    _xchg(&closingSem,0);
 
     return -1;
 }
 
 int sem_wait(sem_t* sem) {
-    enterCR(&sem->lock);
+    while(_xchg(&sem->lock,1)!=0);
     sem->value--;
     if (sem->value < 0) {
         enqueueBlock(sem, getCurrentPid());
-        leaveCR(&sem->lock);
+        _xchg(&sem->lock,0);
         block(getCurrentPid());
     } else {
-        leaveCR(&sem->lock);
+        _xchg(&sem->lock,0);
     }
     return 0;
 }
 
 int sem_post(sem_t* sem) {
-    enterCR(&sem->lock);
+    while(_xchg(&sem->lock,1)!=0);
     sem->value++;
     if (sem->firstWaiting != NULL) {
         int pid = dequeueBlock(sem);
         unblock(pid);
     }
 
-    leaveCR(&sem->lock);
+    _xchg(&sem->lock,0);
 
     return 0;
 }
@@ -169,7 +168,7 @@ int semInfo(){
 
 
 void dumpSem(sem_t * sem){
-    enterCR(&sem->lock);
+    while(_xchg(&sem->lock,1)!=0);
     char * space="    ";
     uint8_t number[30];
 
@@ -184,7 +183,7 @@ void dumpSem(sem_t * sem){
     
     printStringScreen((uint8_t*)space,strlen((uint8_t*)space),BLACK_WHITE);
 
-    leaveCR(&sem->lock);
+    _xchg(&sem->lock,0);
 }
 
 
@@ -206,9 +205,9 @@ static void dumpProcessBlocked(process_t * process){
 
 int changeValue(sem_t * sem,int value){
 
-    enterCR(&sem->lock);
+    while(_xchg(&sem->lock,1)!=0);
     sem->value = value;
-    leaveCR(&sem->lock);
+    _xchg(&sem->lock,0);
     return 0;
 
 }
