@@ -46,7 +46,7 @@ int memInfo()
 {
         
         newLineScreen();
-        printf(" - MEMORIA TOTAL: %d bytes",heapSize);
+        printf(" - MEMORIA TOTAL: %d bytes",(int)heapSize);
         newLineScreen();
         printf(" - MEMORIA LIBRE: %d bytes",(int)availableMemory);
         newLineScreen();

@@ -76,7 +76,7 @@ static void removePhylo(int i) {
             sem_close(philosophers[i].sem);
             _kill(philosophers[i].pid);
             remaining--;
-            printf("Removed (E) from the table %d\n", i);
+            printf("Removed from the table %d\n", i);
             check(i - 1);
             check(0);
         }
@@ -84,7 +84,7 @@ static void removePhylo(int i) {
             sem_close(philosophers[i].sem);
             _kill(philosophers[i].pid);
             remaining--;
-            printf("Removed (T|H) from the table %d\n", i);
+            printf("Removed from the table %d\n", i);
         }
     }
     
@@ -179,8 +179,6 @@ static void printState() {
     for (int i = 0; i < remaining; i++) {
         if (philosophers[i].state == EATING)
             printf(" E ");
-        else if (philosophers[i].state == HUNGRY)
-            printf(" H ");
         else
             printf(" . ");
     }
@@ -190,11 +188,12 @@ static void printState() {
 
 static void killRemaining(){
 
-    while (remaining >= 0){
+    while (remaining > 0){
         sem_close(philosophers[remaining-1].sem);
         _kill(philosophers[remaining-1].pid);
         remaining--;
     }
+    
     
 }
 

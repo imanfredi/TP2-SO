@@ -28,8 +28,7 @@ int test_mm() {
             mm_rqs[rq].size = GetUniform(MAX_MEMORY - total - 1) + 1;
             mm_rqs[rq].address = (void *)malloc2(mm_rqs[rq].size);
             if (mm_rqs[rq].address == NULL) {
-
-                printf("Antes del error veo si es null!\n");          
+                printf("Antes del error veo si es null!\n");
                 return 1;
             }
             total += mm_rqs[rq].size;
