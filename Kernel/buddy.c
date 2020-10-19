@@ -7,20 +7,18 @@
 #include <adminScreen.h>
 #include <stringFunctionsKernel.h>
 
-
-enum powersOfTwo{KILO = 10, MEGA = 20, GIGA = 30};
-#define NULL 0
 #define BASE 2
-
+enum powersOfTwo{KILO = 10, MEGA = 20, GIGA = 30};
 #define MIN_ALLOC_LOG2 6 //Min size supported = 64 bytes 
-#define MAX_ALLOC_LOG2 (30 - MIN_ALLOC_LOG2) //Max size supported = 1 GB
+#define MAX_ALLOC_LOG2 (GIGA - MIN_ALLOC_LOG2) //Max size supported = 1 GB
 #define BINARY_POWER(x) (1 << (x))
 
 typedef struct blockNode_t
 {
     unsigned short int level;
     unsigned short int inUse;
-    struct blockNode_t *previuous, *next;
+    struct blockNode_t *previuous;
+    struct blockNode_t *next;
 } blockNode_t;
 
 static unsigned int getBlock(unsigned int request);
